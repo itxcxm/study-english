@@ -1,0 +1,97 @@
+"use client";
+
+import { Button } from "@/components/ui/button";
+import { BookOpen, Menu, X } from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
+
+export function Header() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  return (
+    <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200">
+      <nav className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          <Link href="/" className="flex items-center gap-2 group">
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-600 to-green-600 flex items-center justify-center transition-transform group-hover:scale-105">
+              <BookOpen className="w-6 h-6 text-white" />
+            </div>
+            <span className="text-xl font-bold text-gray-900">EnglishPro</span>
+          </Link>
+
+          <div className="hidden md:flex items-center gap-8">
+            <Link href="#courses" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
+              Khóa học
+            </Link>
+            <Link href="#exams" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
+              Đề thi
+            </Link>
+            <Link href="#features" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
+              Tính năng
+            </Link>
+            <Link href="#pricing" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
+              Bảng giá
+            </Link>
+          </div>
+
+          <div className="hidden md:flex items-center gap-4">
+            <Link href="/login">
+              <Button variant="ghost">Đăng nhập</Button>
+            </Link>
+            <Link href="/register">
+              <Button className="bg-blue-600 hover:bg-blue-700">Đăng ký ngay</Button>
+            </Link>
+          </div>
+
+          <button
+            className="md:hidden p-2"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? (
+              <X className="w-6 h-6 text-gray-900" />
+            ) : (
+              <Menu className="w-6 h-6 text-gray-900" />
+            )}
+          </button>
+        </div>
+
+        {mobileMenuOpen && (
+          <div className="md:hidden py-4 space-y-4 border-t border-gray-200">
+            <Link
+              href="#courses"
+              className="block py-2 text-gray-700 hover:text-blue-600 font-medium"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Khóa học
+            </Link>
+            <Link
+              href="#exams"
+              className="block py-2 text-gray-700 hover:text-blue-600 font-medium"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Đề thi
+            </Link>
+            <Link
+              href="#features"
+              className="block py-2 text-gray-700 hover:text-blue-600 font-medium"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Tính năng
+            </Link>
+            <Link
+              href="#pricing"
+              className="block py-2 text-gray-700 hover:text-blue-600 font-medium"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Bảng giá
+            </Link>
+            <div className="flex flex-col gap-2 pt-4">
+              <Button variant="outline" className="w-full">Đăng nhập</Button>
+              <Button className="w-full bg-blue-600 hover:bg-blue-700">Đăng ký ngay</Button>
+            </div>
+          </div>
+        )}
+      </nav>
+    </header>
+  );
+}
