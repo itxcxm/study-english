@@ -86,8 +86,12 @@ export function Header() {
               Bảng giá
             </Link>
             <div className="flex flex-col gap-2 pt-4">
-              <Button variant="outline" className="w-full">Đăng nhập</Button>
-              <Button className="w-full bg-blue-600 hover:bg-blue-700">Đăng ký ngay</Button>
+              <Link href="/login">
+                <Button variant="outline" className="w-full">Đăng nhập</Button>
+              </Link>
+              <Link href="/register">
+                <Button className="w-full bg-blue-600 hover:bg-blue-700">Đăng ký ngay</Button>
+              </Link>
             </div>
           </div>
         )}
