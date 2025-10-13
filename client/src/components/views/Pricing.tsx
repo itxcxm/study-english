@@ -59,7 +59,7 @@ export function Pricing() {
         <div className="text-center max-w-3xl mx-auto mb-16">
           <Badge className="mb-4 bg-orange-100 text-orange-700 hover:bg-orange-100">Bảng giá</Badge>
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            Chọn gói học phù hợp với bạn
+            Gói đề luyện thi IELTS và TOIEC
           </h2>
           <p className="text-lg text-gray-600">
             Đầu tư cho tương lai với mức giá hợp lý

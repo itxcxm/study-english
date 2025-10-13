@@ -20,17 +20,17 @@ export function Header() {
           </Link>
 
           <div className="hidden md:flex items-center gap-8">
-            <Link href="#courses" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
+            <Link href="/courses" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
               Khóa học
             </Link>
             <Link href="#exams" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
-              Đề thi
+              Luyện Đề
             </Link>
             <Link href="#features" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
               Tính năng
             </Link>
-            <Link href="#pricing" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
-              Bảng giá
+            <Link href="#" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
+              Về Chúng tôi
             </Link>
           </div>
 
@@ -58,32 +58,32 @@ export function Header() {
         {mobileMenuOpen && (
           <div className="md:hidden py-4 space-y-4 border-t border-gray-200">
             <Link
-              href="#courses"
+              href="/courses"
               className="block py-2 text-gray-700 hover:text-blue-600 font-medium"
               onClick={() => setMobileMenuOpen(false)}
             >
               Khóa học
             </Link>
             <Link
-              href="#exams"
+              href="/"
               className="block py-2 text-gray-700 hover:text-blue-600 font-medium"
               onClick={() => setMobileMenuOpen(false)}
             >
-              Đề thi
+              Luyện Đề
             </Link>
             <Link
-              href="#features"
+              href="/"
               className="block py-2 text-gray-700 hover:text-blue-600 font-medium"
               onClick={() => setMobileMenuOpen(false)}
             >
               Tính năng
             </Link>
             <Link
-              href="#pricing"
+              href="/"
               className="block py-2 text-gray-700 hover:text-blue-600 font-medium"
               onClick={() => setMobileMenuOpen(false)}
             >
-              Bảng giá
+              Về chúng tôi
             </Link>
             <div className="flex flex-col gap-2 pt-4">
               <Link href="/login">
