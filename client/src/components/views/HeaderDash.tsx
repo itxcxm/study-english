@@ -18,7 +18,7 @@ export function HeaderDash() {
   const [isOpen, setIsOpen] = useState(false)
 
   return (
-    <header className="w-full border-b bg-white">
+      <header className="w-full border-b bg-white">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <Link href="/" className="flex items-center gap-2 group">
             <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-600 to-green-600 flex items-center justify-center transition-transform group-hover:scale-105">
@@ -47,7 +47,7 @@ export function HeaderDash() {
             Ôn tập
           </Link>
           <Link
-            href="/dashboard"
+            href="/dashboard/exam"
             className="text-sm font-medium text-gray-700 hover:text-teal-600 transition-colors"
           >
             Thi thử
@@ -142,7 +142,7 @@ export function HeaderDash() {
                     Ôn tập
                   </Link>
                   <Link
-                    href="/pricing"
+                    href="/dashboard/exam"
                     onClick={() => setIsOpen(false)}
                     className="text-base font-medium text-gray-700 hover:text-teal-600 transition-colors py-2"
                   >

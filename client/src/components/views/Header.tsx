@@ -23,8 +23,11 @@ export function Header() {
             <Link href="/courses" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
               Khóa học
             </Link>
-            <Link href="/#" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
-              Luyện Đề
+            <Link href="/practiceTest" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
+              Ôn Tập
+            </Link>
+            <Link href="/exam" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
+              Gói Luyện Thi
             </Link>
             <Link href="/#" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
               Tính năng
@@ -65,11 +68,18 @@ export function Header() {
               Khóa học
             </Link>
             <Link
-              href="/#"
+              href="/practiceTest"
               className="block py-2 text-gray-700 hover:text-blue-600 font-medium"
               onClick={() => setMobileMenuOpen(false)}
             >
-              Luyện Đề
+              Ôn Tập
+            </Link>
+            <Link
+              href="/exam"
+              className="block py-2 text-gray-700 hover:text-blue-600 font-medium"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Gói Luyện Thi
             </Link>
             <Link
               href="/#"

@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Clock, Users, Star, BookOpen, Target, Zap } from 'lucide-react'
+import { Footer } from '@/components/views/Footer'
 
 const courses = [
   {
@@ -205,6 +206,7 @@ export default function CoursesPage() {
             </div>
         </section>
         </div>
+        <Footer />
     </div>
   )
 }
