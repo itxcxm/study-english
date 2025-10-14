@@ -35,19 +35,19 @@ export function HeaderDash() {
             Tổng Quan
           </Link>
           <Link
-            href="/test-preparation"
+            href="/dashboard/myCourses"
             className="text-sm font-medium text-gray-700 hover:text-teal-600 transition-colors"
           >
             Khóa học của tôi
           </Link>
           <Link
-            href="/features"
+            href="/dashboard"
             className="text-sm font-medium text-gray-700 hover:text-teal-600 transition-colors"
           >
             Ôn tập
           </Link>
           <Link
-            href="/pricing"
+            href="/dashboard"
             className="text-sm font-medium text-gray-700 hover:text-teal-600 transition-colors"
           >
             Thi thử
@@ -128,7 +128,7 @@ export function HeaderDash() {
                     Tổng Quan
                   </Link>
                   <Link
-                    href="/test-preparation"
+                    href="/dashboard/myCourses"
                     onClick={() => setIsOpen(false)}
                     className="text-base font-medium text-gray-700 hover:text-teal-600 transition-colors py-2"
                   >
