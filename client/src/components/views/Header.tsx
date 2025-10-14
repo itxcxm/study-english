@@ -26,7 +26,7 @@ export function Header() {
             <Link href="/practiceTest" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
               Ôn Tập
             </Link>
-            <Link href="/exam" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
+            <Link href="/pricing" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
               Gói Luyện Thi
             </Link>
             <Link href="/#" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
@@ -75,7 +75,7 @@ export function Header() {
               Ôn Tập
             </Link>
             <Link
-              href="/exam"
+              href="/pricing"
               className="block py-2 text-gray-700 hover:text-blue-600 font-medium"
               onClick={() => setMobileMenuOpen(false)}
             >
