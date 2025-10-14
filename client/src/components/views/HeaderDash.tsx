@@ -41,7 +41,7 @@ export function HeaderDash() {
             Khóa học của tôi
           </Link>
           <Link
-            href="/dashboard"
+            href="/dashboard/review"
             className="text-sm font-medium text-gray-700 hover:text-teal-600 transition-colors"
           >
             Ôn tập
@@ -135,7 +135,7 @@ export function HeaderDash() {
                     Khóa học của tôi
                   </Link>
                   <Link
-                    href="/features"
+                    href="/dashboard/review"
                     onClick={() => setIsOpen(false)}
                     className="text-base font-medium text-gray-700 hover:text-teal-600 transition-colors py-2"
                   >
