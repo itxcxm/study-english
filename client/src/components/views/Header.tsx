@@ -29,10 +29,10 @@ export function Header() {
             <Link href="/pricing" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
               Gói Luyện Thi
             </Link>
-            <Link href="/#" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
+            <Link href="/introduce" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
               Tính năng
             </Link>
-            <Link href="/#" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
+            <Link href="/about" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
               Về Chúng tôi
             </Link>
           </div>
@@ -82,14 +82,14 @@ export function Header() {
               Gói Luyện Thi
             </Link>
             <Link
-              href="/#"
+              href="/introduce"
               className="block py-2 text-gray-700 hover:text-blue-600 font-medium"
               onClick={() => setMobileMenuOpen(false)}
             >
               Tính năng
             </Link>
             <Link
-              href="/#"
+              href="/about"
               className="block py-2 text-gray-700 hover:text-blue-600 font-medium"
               onClick={() => setMobileMenuOpen(false)}
             >

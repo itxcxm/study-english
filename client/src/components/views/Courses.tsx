@@ -2,6 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Clock, Users, Star, ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 const courses = [
   {
@@ -112,7 +113,7 @@ export function Courses() {
 
         <div className="text-center mt-12">
           <Button size="lg" variant="outline" className="px-8">
-            Xem tất cả khóa học
+            <Link href="/courses">Xem tất cả khóa học</Link>
           </Button>
         </div>
       </div>
