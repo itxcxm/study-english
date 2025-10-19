@@ -1,7 +1,7 @@
-import { Router } from 'express';
-import { UserService } from '../services/userService.js';
-import { HTTP_STATUS } from '../utils/constants.js';
-import { authMiddleware } from '../middlewares/auth.js';
+import { Router } from "express";
+import { UserService } from "../services/userService.js";
+import { HTTP_STATUS } from "../utils/constants.js";
+import { authMiddleware } from "../middlewares/auth.js";
 
 // Controller quản lý các thao tác với User
 export class UserController {
@@ -13,32 +13,32 @@ export class UserController {
 
   // Khởi tạo các route cho User
   initializeRoutes() {
-    this.router.get('/', this.getUsers); // Lấy danh sách tất cả user
-    this.router.get('/:id', this.getUserById); // Lấy thông tin user theo id
-    this.router.post('/', this.createUser); // Tạo mới user
-    this.router.put('/:id', authMiddleware, this.updateUser); // Cập nhật user (cần xác thực)
-    this.router.delete('/:id', authMiddleware, this.deleteUser); // Xóa user (cần xác thực)
+    this.router.get("/", this.getUsers); // Lấy danh sách tất cả user
+    this.router.get("/:id", this.getUserById); // Lấy thông tin user theo id
+    this.router.post("/", this.createUser); // Tạo mới user
+    this.router.put("/:id", authMiddleware, this.updateUser); // Cập nhật user (cần xác thực)
+    this.router.delete("/:id", authMiddleware, this.deleteUser); // Xóa user (cần xác thực)
   }
 
   // Tạo user mới
   createUser = async (req, res) => {
     try {
       const user = await this.userService.createUser(req.body);
-      if(user === null){
+      if (user === null) {
         res.status(HTTP_STATUS.CONFLICT).json({
           success: false,
-          message: 'Email đã tồn tại'
+          message: "Email đã tồn tại",
         });
       }
       res.status(HTTP_STATUS.CREATED).json({
         success: true,
         data: user,
-        message: 'Tạo user thành công'
+        message: "Tạo user thành công",
       });
     } catch (error) {
       res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
-        message: error.message
+        message: error.message,
       });
     }
   };
@@ -49,12 +49,12 @@ export class UserController {
       const users = await this.userService.getAllUsers();
       res.status(HTTP_STATUS.OK).json({
         success: true,
-        data: users
+        data: users,
       });
     } catch (error) {
       res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: error.message
+        message: error.message,
       });
     }
   };
@@ -68,19 +68,19 @@ export class UserController {
       if (!user) {
         res.status(HTTP_STATUS.NOT_FOUND).json({
           success: false,
-          message: 'Không tìm thấy user'
+          message: "Không tìm thấy user",
         });
         return;
       }
 
       res.status(HTTP_STATUS.OK).json({
         success: true,
-        data: user
+        data: user,
       });
     } catch (error) {
       res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: error.message
+        message: error.message,
       });
     }
   };
@@ -94,7 +94,7 @@ export class UserController {
       if (!user) {
         res.status(HTTP_STATUS.NOT_FOUND).json({
           success: false,
-          message: 'Không tìm thấy user'
+          message: "Không tìm thấy user",
         });
         return;
       }
@@ -102,12 +102,12 @@ export class UserController {
       res.status(HTTP_STATUS.OK).json({
         success: true,
         data: user,
-        message: 'Cập nhật user thành công'
+        message: "Cập nhật user thành công",
       });
     } catch (error) {
       res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
-        message: error.message
+        message: error.message,
       });
     }
   };
@@ -121,19 +121,19 @@ export class UserController {
       if (!deleted) {
         res.status(HTTP_STATUS.NOT_FOUND).json({
           success: false,
-          message: 'Không tìm thấy user'
+          message: "Không tìm thấy user",
         });
         return;
       }
 
       res.status(HTTP_STATUS.OK).json({
         success: true,
-        message: 'Xóa user thành công'
+        message: "Xóa user thành công",
       });
     } catch (error) {
       res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: error.message
+        message: error.message,
       });
     }
   };
