@@ -24,6 +24,12 @@ export class UserController {
   createUser = async (req, res) => {
     try {
       const user = await this.userService.createUser(req.body);
+      if(user === null){
+        res.status(HTTP_STATUS.CONFLICT).json({
+          success: false,
+          message: 'Email đã tồn tại'
+        });
+      }
       res.status(HTTP_STATUS.CREATED).json({
         success: true,
         data: user,

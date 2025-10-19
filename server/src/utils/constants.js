@@ -10,11 +10,14 @@ export const HTTP_STATUS = {
     UNAUTHORIZED: 401,
     FORBIDDEN: 403,
     NOT_FOUND: 404,
+    CONFLICT: 409,
     INTERNAL_SERVER_ERROR: 500
   };
 
 // Thiết lập cấu hình cho JWT
 export const JWT_CONFIG = {
-    SECRET: process.env.JWT_SECRET || 'study-english',    // Chuỗi bí mật cho JWT
-    EXPIRES_IN: '7d'                                      // Thời gian hết hạn token
+    SECRET: process.env.JWT_SECRET || 'study-english',  // Chuỗi bí mật cho access token JWT
+    REFRESH_SECRET: process.env.REFRESH_SECRET || 'study-english', // Chuỗi bí mật cho refresh token JWT
+    EXPIRES_IN: '7d',                                    // Thời gian hết hạn token
+    EXPIRES_IN_REFRESH: '7d'                                    // Thời gian hết hạn token
 };

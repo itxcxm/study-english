@@ -8,13 +8,20 @@ export class UserService {
     this.userRepository = new UserRepository();
   }
 
-  // Tạo người dùng mới, mã hoá mật khẩu trước khi lưu
+  // Tạo người dùng mới, kiểm tra nếu user đã tồn tại theo email thì không tạo, mã hoá mật khẩu trước khi lưu
   async createUser(userData) {
-    if (userData.password) {
-      userData.password = await bcrypt.hash(userData.password, 10);
+    // Kiểm tra xem user đã tồn tại hay chưa dựa vào email
+    const existingUser = await this.userRepository.findByEmail(userData.email);
+    if (existingUser) {
+      // Nếu user đã tồn tại, trả về thông báo lỗi
+      return null;
+    }else{
+      if (userData.password) {
+        userData.password = await bcrypt.hash(userData.password, 10);
+      }
+      // Trả về đối tượng người dùng đã tạo
+      return await this.userRepository.create(userData);
     }
-    // Trả về đối tượng người dùng đã tạo
-    return await this.userRepository.create(userData);
   }
 
   // Lấy thông tin người dùng theo ID

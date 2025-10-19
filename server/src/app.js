@@ -1,7 +1,6 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import mongoose from "mongoose";
 import { connectDB } from "./config/database.js";
 import { UserController } from './controllers/userController.js';
 import { AuthController } from "./controllers/authController.js";

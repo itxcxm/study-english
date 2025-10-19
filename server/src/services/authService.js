@@ -17,5 +17,4 @@ export class AuthService {
     const passwords = await this.authRepository.findByPassword(email);
     return await bcrypt.compare(password, passwords);
   }
-
 }
