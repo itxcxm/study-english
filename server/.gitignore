@@ -2,9 +2,6 @@
 
 # dependencies
 /node_modules
-/.pnp
-.pnp.js
-
 # testing
 /coverage
 
@@ -16,8 +13,6 @@
 /build
 
 # misc
-.DS_Store
-*.pem
 
 # debug
 npm-debug.log*
