@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { BookOpen, Mail, Lock, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import api from "@/lib/api";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -15,6 +16,17 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [msg, setMsg] = useState("");
+
+  const handleLogin = async () => {
+    try {
+      const res = await api.post("/auth/login", { email, password });
+      setMsg(res.data.message);
+      router.push("/"); // chuyển đến profile sau khi login
+    } catch (err: any) {
+      setMsg(err.response?.data?.message || "Đăng nhập thất bại");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center p-4">
@@ -93,6 +105,7 @@ export default function LoginPage() {
               >
                 {loading ? "Đang đăng nhập..." : "Đăng nhập"}
               </Button>
+              <p>{msg}</p>
             </form>
 
             <div className="mt-6 text-center">
