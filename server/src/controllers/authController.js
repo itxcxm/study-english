@@ -21,7 +21,6 @@ export class AuthController {
     this.router.get("/check", this.checkAuth); // Kiểm tra trạng thái đăng nhập
   }
 
-  // Hàm xử lý đăng nhập, kiểm tra email và password từ request
   // Hàm xử lý đăng nhập người dùng
   login = async (req, res) => {
     try {
