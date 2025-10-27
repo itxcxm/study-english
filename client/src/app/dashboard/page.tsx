@@ -43,7 +43,7 @@ export default function DashboardPage() {
     <div>
     <HeaderDash/>
     <div className="container mx-auto p-6 space-y-8">
-        
+
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card className="border-2 hover:border-primary/50 transition-colors">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
