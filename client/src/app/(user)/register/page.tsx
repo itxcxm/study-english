@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,6 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { BookOpen, Mail, Lock, User, AlertCircle, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import api from "@/lib/api";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -20,6 +21,76 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  
+  useEffect(() => {
+    // Kiểm tra trạng thái đăng nhập qua API
+    const checkAuth = async () => {
+      try {
+        const response = await api.get("/api/auth/check");
+        const authenticated = response.data.authenticated || false;
+        setIsAuthenticated(authenticated);
+        
+        // Nếu đã đăng nhập, redirect đến dashboard
+        if (authenticated) {
+          router.push("/dashboard");
+        }
+      } catch (error) {
+        setIsAuthenticated(false);
+      }
+    };
+    
+    checkAuth();
+    // Kiểm tra định kỳ trạng thái đăng nhập
+    const interval = setInterval(checkAuth, 2000);
+    return () => clearInterval(interval);
+  }, [router]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    
+    // Validate password match
+    if (password !== confirmPassword) {
+      setError("Mật khẩu xác nhận không khớp");
+      return;
+    }
+
+    // Validate password length
+    if (password.length < 6) {
+      setError("Mật khẩu phải có ít nhất 6 ký tự");
+      return;
+    }
+
+    // Validate terms agreement
+    if (!agreedToTerms) {
+      setError("Vui lòng đồng ý với điều khoản sử dụng");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await api.post("/api/users", {
+        name: fullName,
+        email: email,
+        password: password,
+      });
+
+      if (response.data.success) {
+        setSuccess(true);
+        // Redirect to login after 2 seconds
+        setTimeout(() => {
+          router.push("/login");
+        }, 2000);
+      }
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Đăng ký thất bại");
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
 
   return (
@@ -58,7 +129,7 @@ export default function RegisterPage() {
                 </div>
               </div>
             ) : (
-              <form  className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-4">
                 {error && (
                   <div className="p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
                     <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />

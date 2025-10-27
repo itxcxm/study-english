@@ -3,10 +3,29 @@
 import { Button } from "@/components/ui/button";
 import { BookOpen, Menu, X } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import api from "@/lib/api";
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    // Kiểm tra trạng thái đăng nhập qua API
+    const checkAuth = async () => {
+      try {
+        const response = await api.get("/api/auth/check");
+        setIsAuthenticated(response.data.authenticated || false);
+      } catch (error) {
+        setIsAuthenticated(false);
+      }
+    };
+    
+    checkAuth();
+    // Kiểm tra định kỳ trạng thái đăng nhập
+    const interval = setInterval(checkAuth, 2000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200">
@@ -38,12 +57,20 @@ export function Header() {
           </div>
 
           <div className="hidden md:flex items-center gap-4">
-            <Link href="/login">
-              <Button variant="ghost">Đăng nhập</Button>
-            </Link>
-            <Link href="/register">
-              <Button className="bg-blue-600 hover:bg-blue-700">Đăng ký ngay</Button>
-            </Link>
+            {isAuthenticated ? (
+              <Link href="/dashboard">
+                <Button className="bg-blue-600 hover:bg-blue-700">My Dashboard</Button>
+              </Link>
+            ) : (
+              <>
+                <Link href="/login">
+                  <Button variant="ghost">Đăng nhập</Button>
+                </Link>
+                <Link href="/register">
+                  <Button className="bg-blue-600 hover:bg-blue-700">Đăng ký ngay</Button>
+                </Link>
+              </>
+            )}
           </div>
 
           <button
@@ -96,12 +123,20 @@ export function Header() {
               Về chúng tôi
             </Link>
             <div className="flex flex-col gap-2 pt-4">
-              <Link href="/login">
-                <Button variant="outline" className="w-full">Đăng nhập</Button>
-              </Link>
-              <Link href="/register">
-                <Button className="w-full bg-blue-600 hover:bg-blue-700">Đăng ký ngay</Button>
-              </Link>
+              {isAuthenticated ? (
+                <Link href="/dashboard">
+                  <Button className="w-full bg-blue-600 hover:bg-blue-700">My Dashboard</Button>
+                </Link>
+              ) : (
+                <>
+                  <Link href="/login">
+                    <Button variant="outline" className="w-full">Đăng nhập</Button>
+                  </Link>
+                  <Link href="/register">
+                    <Button className="w-full bg-blue-600 hover:bg-blue-700">Đăng ký ngay</Button>
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         )}

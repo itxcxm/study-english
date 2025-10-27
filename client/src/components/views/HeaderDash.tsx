@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -13,9 +14,23 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { BookOpen, Menu, User, Settings, LogOut } from 'lucide-react'
+import api from '@/lib/api'
 
 export function HeaderDash() {
   const [isOpen, setIsOpen] = useState(false)
+  const router = useRouter()
+
+  const handleLogout = async () => {
+    try {
+      await api.post("/api/auth/logout")
+      setIsOpen(false)
+      router.push("/login")
+    } catch (error) {
+      console.error("Logout error:", error)
+      // Redirect anyway to ensure user is logged out
+      router.push("/login")
+    }
+  }
 
   return (
       <header className="w-full border-b bg-white">
@@ -91,7 +106,10 @@ export function HeaderDash() {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="cursor-pointer text-red-600 focus:text-red-600">
+              <DropdownMenuItem 
+                onClick={handleLogout}
+                className="cursor-pointer text-red-600 focus:text-red-600"
+              >
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Đăng xuất</span>
               </DropdownMenuItem>
@@ -168,7 +186,7 @@ export function HeaderDash() {
                     <span>Cài đặt</span>
                   </Link>
                   <button
-                    onClick={() => setIsOpen(false)}
+                    onClick={handleLogout}
                     className="flex items-center gap-2 text-base font-medium text-red-600 hover:text-red-700 transition-colors py-2"
                   >
                     <LogOut className="h-5 w-5" />

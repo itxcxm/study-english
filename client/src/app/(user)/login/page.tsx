@@ -14,15 +14,22 @@ export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [msg, setMsg] = useState("");
+  const [inputValue, setInputValue] = useState('');
+
+  const handleSubmit = (e:any) => {
+    e.preventDefault(); // Ngăn reload trang
+    // Thực hiện các hành động khác như gọi API, cập nhật state, v.v.
+  };
+
 
   const handleLogin = async () => {
     try {
-      const res = await api.post("/auth/login", { email, password });
-      setMsg(res.data.message);
-      router.push("/"); // chuyển đến profile sau khi login
+      const response = await api.post("/api/auth", { email: email, password:password });
+      if (response.data.success) {
+        router.push("/");
+      }
     } catch (err: any) {
       setMsg(err.response?.data?.message || "Đăng nhập thất bại");
     }
@@ -49,7 +56,7 @@ export default function LoginPage() {
           </CardHeader>
 
           <CardContent>
-            <form className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
               {error && (
                 <div className="p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
                   <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
@@ -101,9 +108,9 @@ export default function LoginPage() {
                 type="submit"
                 className="w-full bg-blue-600 hover:bg-blue-700"
                 size="lg"
-                disabled={loading}
+                onClick={handleLogin}
               >
-                {loading ? "Đang đăng nhập..." : "Đăng nhập"}
+                Đăng nhập
               </Button>
               <p>{msg}</p>
             </form>

@@ -25,18 +25,18 @@ export class UserController {
     try {
       const user = await this.userService.createUser(req.body);
       if (user === null) {
-        res.status(HTTP_STATUS.CONFLICT).json({
+        return res.status(HTTP_STATUS.CONFLICT).json({
           success: false,
           message: "Email đã tồn tại",
         });
       }
-      res.status(HTTP_STATUS.CREATED).json({
+      return res.status(HTTP_STATUS.CREATED).json({
         success: true,
         data: user,
         message: "Tạo user thành công",
       });
     } catch (error) {
-      res.status(HTTP_STATUS.BAD_REQUEST).json({
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
         message: error.message,
       });
