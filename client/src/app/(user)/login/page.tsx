@@ -26,7 +26,7 @@ export default function LoginPage() {
 
   const handleLogin = async () => {
     try {
-      const response = await api.post("/api/auth", { email: email, password:password });
+      const response = await api.post("/auth", { email: email, password:password });
       if (response.data.success) {
         router.push("/");
       }

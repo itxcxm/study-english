@@ -5,7 +5,7 @@ import { jwtVerify } from "jose";
 const SECRET = new TextEncoder().encode(process.env.JWT_SECRET || "study-english");
 
 // 🧭 Danh sách route cần đăng nhập
-const protectedRoutes = ["/dashboard", "/profile"];
+const protectedRoutes = ["/dashboard", "/profile", "/admin"];
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
@@ -55,6 +55,7 @@ export const config = {
     "/login",
     "/register",
     "/profile/:path*",
-    "/dashboard/:path*"
+    "/dashboard/:path*",
+    "/admin/:path*"
   ],
 };

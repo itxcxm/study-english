@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { UserService } from "../services/userService.js";
 import { HTTP_STATUS } from "../utils/constants.js";
-import { authMiddleware } from "../middlewares/auth.js";
+import { authMiddleware, adminMiddleware } from "../middlewares/auth.js";
 
 // Controller quản lý các thao tác với User
 export class UserController {
@@ -13,11 +13,16 @@ export class UserController {
 
   // Khởi tạo các route cho User
   initializeRoutes() {
-    this.router.get("/", this.getUsers); // Lấy danh sách tất cả user
-    this.router.get("/:id", this.getUserById); // Lấy thông tin user theo id
-    this.router.post("/", this.createUser); // Tạo mới user
-    this.router.put("/:id", authMiddleware, this.updateUser); // Cập nhật user (cần xác thực)
-    this.router.delete("/:id", authMiddleware, this.deleteUser); // Xóa user (cần xác thực)
+    this.router.get("/", authMiddleware, adminMiddleware, this.getUsers); // Lấy danh sách tất cả user
+    this.router.get("/:id", authMiddleware, adminMiddleware, this.getUserById); // Lấy thông tin user theo id
+    this.router.post("/", authMiddleware, adminMiddleware, this.createUser); // Tạo mới user (chỉ admin)
+    this.router.put("/:id", authMiddleware, adminMiddleware, this.updateUser); // Cập nhật user (chỉ admin)
+    this.router.delete(
+      "/:id",
+      authMiddleware,
+      adminMiddleware,
+      this.deleteUser
+    ); // Xóa user (chỉ admin)
   }
 
   // Tạo user mới

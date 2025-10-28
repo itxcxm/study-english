@@ -14,7 +14,7 @@ export function Header() {
     // Kiểm tra trạng thái đăng nhập qua API
     const checkAuth = async () => {
       try {
-        const response = await api.get("/api/auth/check");
+        const response = await api.get("/auth/check");
         setIsAuthenticated(response.data.authenticated || false);
       } catch (error) {
         setIsAuthenticated(false);

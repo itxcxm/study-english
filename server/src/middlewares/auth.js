@@ -9,23 +9,21 @@ import { HTTP_STATUS, JWT_CONFIG } from "../utils/constants.js";
 
 export const authMiddleware = async (req, res, next) => {
   try {
-    // Lấy token từ header Authorization
-    const authHeader = req.headers.authorization;
+    // Lấy token từ cookie hoặc header Authorization
+    let token = req.cookies.accessToken;
 
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res.status(HTTP_STATUS.UNAUTHORIZED).json({
-        success: false,
-        message: "Token không được cung cấp hoặc định dạng không đúng",
-      });
+    // Nếu không có token trong cookie, thử lấy từ header
+    if (!token) {
+      const authHeader = req.headers.authorization;
+      if (authHeader && authHeader.startsWith("Bearer ")) {
+        token = authHeader.substring(7);
+      }
     }
-
-    // Trích xuất token từ "Bearer <token>"
-    const token = authHeader.substring(7);
 
     if (!token) {
       return res.status(HTTP_STATUS.UNAUTHORIZED).json({
         success: false,
-        message: "Token không hợp lệ",
+        message: "Token không được cung cấp",
       });
     }
 
@@ -33,7 +31,7 @@ export const authMiddleware = async (req, res, next) => {
     const decoded = jwt.verify(token, JWT_CONFIG.SECRET);
 
     // Tìm user trong database
-    const user = await User.findById(decoded.userId).select("-password");
+    const user = await User.findById(decoded.id).select("-password");
 
     if (!user) {
       return res.status(HTTP_STATUS.UNAUTHORIZED).json({
@@ -152,21 +150,23 @@ export const userOrAdminMiddleware = (req, res, next) => {
  */
 export const optionalAuthMiddleware = async (req, res, next) => {
   try {
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return next(); // Không có token, tiếp tục mà không xác thực
-    }
-
-    const token = authHeader.substring(7);
+    // Lấy token từ cookie hoặc header
+    let token = req.cookies.accessToken;
 
     if (!token) {
-      return next(); // Token rỗng, tiếp tục mà không xác thực
+      const authHeader = req.headers.authorization;
+      if (authHeader && authHeader.startsWith("Bearer ")) {
+        token = authHeader.substring(7);
+      }
+    }
+
+    if (!token) {
+      return next(); // Không có token, tiếp tục mà không xác thực
     }
 
     try {
       const decoded = jwt.verify(token, JWT_CONFIG.SECRET);
-      const user = await User.findById(decoded.userId).select("-password");
+      const user = await User.findById(decoded.id).select("-password");
 
       if (user && user.isActive) {
         req.user = user;
@@ -219,7 +219,7 @@ export const activeUserMiddleware = (req, res, next) => {
  * Utility function để tạo JWT token
  */
 export const generateToken = (userId) => {
-  return jwt.sign({ userId }, JWT_CONFIG.SECRET, {
+  return jwt.sign({ id: userId }, JWT_CONFIG.SECRET, {
     expiresIn: JWT_CONFIG.EXPIRES_IN,
   });
 };

@@ -27,7 +27,7 @@ export default function RegisterPage() {
     // Kiểm tra trạng thái đăng nhập qua API
     const checkAuth = async () => {
       try {
-        const response = await api.get("/api/auth/check");
+        const response = await api.get("/auth/check");
         const authenticated = response.data.authenticated || false;
         setIsAuthenticated(authenticated);
         
@@ -71,7 +71,7 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      const response = await api.post("/api/users", {
+      const response = await api.post("/users", {
         name: fullName,
         email: email,
         password: password,

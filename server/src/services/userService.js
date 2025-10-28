@@ -1,5 +1,5 @@
-import { UserRepository } from '../repositories/userRepository.js';
-import bcrypt from 'bcrypt';
+import { UserRepository } from "../repositories/userRepository.js";
+import bcrypt from "bcrypt";
 
 // Lớp UserService xử lý logic nghiệp vụ liên quan đến người dùng
 export class UserService {
@@ -15,7 +15,7 @@ export class UserService {
     if (existingUser) {
       // Nếu user đã tồn tại, trả về thông báo lỗi
       return null;
-    }else{
+    } else {
       if (userData.password) {
         userData.password = await bcrypt.hash(userData.password, 10);
       }
@@ -29,8 +29,22 @@ export class UserService {
     return await this.userRepository.findById(id);
   }
 
-  // Lấy danh sách tất cả người dùng đang hoạt động
+  // Lấy danh sách tất cả người dùng
   async getAllUsers() {
-    return await this.userRepository.findActiveUsers();
+    return await this.userRepository.findAll();
+  }
+
+  // Cập nhật thông tin người dùng
+  async updateUser(id, userData) {
+    // Nếu có mật khẩu mới, mã hoá nó
+    if (userData.password) {
+      userData.password = await bcrypt.hash(userData.password, 10);
+    }
+    return await this.userRepository.update(id, userData);
+  }
+
+  // Xoá người dùng
+  async deleteUser(id) {
+    return await this.userRepository.delete(id);
   }
 }
