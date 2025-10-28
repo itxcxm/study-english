@@ -1,0 +1,13 @@
+export { PresentSimple } from "./PresentSimple.js";
+export { PresentContinuous } from "./PresentContinuous.js";
+export { PresentPerfect } from "./PresentPerfect.js";
+export { PresentPerfectContinuous } from "./PresentPerfectContinuous.js";
+export { PastSimple } from "./PastSimple.js";
+export { PastContinuous } from "./PastContinuous.js";
+export { PastPerfect } from "./PastPerfect.js";
+export { PastPerfectContinuous } from "./PastPerfectContinuous.js";
+export { FutureSimple } from "./FutureSimple.js";
+export { FutureContinuous } from "./FutureContinuous.js";
+export { FuturePerfect } from "./FuturePerfect.js";
+export { FuturePerfectContinuous } from "./FuturePerfectContinuous.js";
+export { VerbTensesOther } from "./OtherVerbTenses.js";
