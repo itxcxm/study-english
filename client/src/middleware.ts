@@ -40,8 +40,17 @@ export async function middleware(req: NextRequest) {
   }
 
   try {
-    // ✅ Token hợp lệ => cho phép
-    await jwtVerify(token, SECRET);
+    // ✅ Verify token và lấy payload
+    const { payload } = await jwtVerify(token, SECRET);
+    
+    // --- 4️⃣ Kiểm tra quyền admin cho route /admin ---
+    if (pathname.startsWith("/admin")) {
+      if (payload.role !== "admin") {
+        // ❌ Không phải admin => về trang chủ
+        return NextResponse.redirect(new URL("/", req.url));
+      }
+    }
+    
     return NextResponse.next();
   } catch {
     // ❌ Token hết hạn hoặc sai => về login

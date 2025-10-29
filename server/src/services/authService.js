@@ -1,5 +1,7 @@
 import { AuthRepository } from "../repositories/authRepository.js";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import { JWT_CONFIG } from "../utils/constants.js";
 
 // Lớp UserService xử lý logic nghiệp vụ liên quan đến người dùng
 export class AuthService {
@@ -16,5 +18,15 @@ export class AuthService {
   async checkPassword(email, password) {
     const passwords = await this.authRepository.findByPassword(email);
     return await bcrypt.compare(password, passwords);
+  }
+
+  // kiểm tra refresh token
+  async checkRefreshToken(refreshToken) {
+    return await jwt.verify(refreshToken, JWT_CONFIG.REFRESH_SECRET);
+  }
+
+  // kiểm tra access token
+  async checkAccessToken(accessToken) {
+    return await jwt.verify(accessToken, JWT_CONFIG.SECRET);
   }
 }

@@ -5,26 +5,14 @@ import { BookOpen, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import api from "@/lib/api";
+import { checkAuth } from "@/lib/auth";
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    // Kiểm tra trạng thái đăng nhập qua API
-    const checkAuth = async () => {
-      try {
-        const response = await api.get("/auth/check");
-        setIsAuthenticated(response.data.authenticated || false);
-      } catch (error) {
-        setIsAuthenticated(false);
-      }
-    };
-    
-    checkAuth();
-    // Kiểm tra định kỳ trạng thái đăng nhập
-    const interval = setInterval(checkAuth, 2000);
-    return () => clearInterval(interval);
+    checkAuth(setIsAuthenticated);
   }, []);
 
   return (

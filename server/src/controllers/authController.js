@@ -138,9 +138,10 @@ export class AuthController {
   checkAuth = async (req, res) => {
     try {
       // Lấy token từ cookie
-      const token = req.cookies.accessToken;
+      const accessToken = req.cookies.accessToken;
+      const refreshToken = req.cookies.refreshToken;
 
-      if (!token) {
+      if (!accessToken) {
         return res.status(HTTP_STATUS.OK).json({
           success: false,
           authenticated: false,
@@ -148,25 +149,77 @@ export class AuthController {
         });
       }
 
-      // Xác thực token
+      // Kiểm tra access token
       try {
-        const decoded = jwt.verify(token, JWT_CONFIG.SECRET);
+        const decodedAccessToken = await this.authService.checkAccessToken(
+          accessToken
+        );
 
+        // Access token hợp lệ, trả về thông tin người dùng
         return res.status(HTTP_STATUS.OK).json({
           success: true,
           authenticated: true,
           user: {
-            id: decoded.id,
-            email: decoded.email,
-            role: decoded.role,
+            id: decodedAccessToken.id,
+            email: decodedAccessToken.email,
+            role: decodedAccessToken.role,
           },
         });
-      } catch (error) {
-        return res.status(HTTP_STATUS.OK).json({
-          success: false,
-          authenticated: false,
-          message: "Token không hợp lệ hoặc đã hết hạn",
-        });
+      } catch (accessTokenError) {
+        // Access token không hợp lệ hoặc đã hết hạn, kiểm tra refresh token
+        try {
+          const decodedRefreshToken = await this.authService.checkRefreshToken(
+            refreshToken
+          );
+
+          // Refresh token hợp lệ, tạo token mới
+          const newTokens = await this.jwtService.createTokenJwt(
+            decodedRefreshToken.email
+          );
+
+          if (!newTokens) {
+            return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+              success: false,
+              authenticated: false,
+              message: "Không thể tạo token mới",
+            });
+          }
+
+          // Thiết lập cookie accessToken mới
+          res.cookie("accessToken", newTokens.accessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "Strict",
+            maxAge: 15 * 60 * 1000, // 15 phút
+          });
+
+          // Thiết lập cookie refreshToken mới
+          res.cookie("refreshToken", newTokens.refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "Strict",
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 ngày
+          });
+
+          // Trả về thông tin người dùng với token mới
+          return res.status(HTTP_STATUS.OK).json({
+            success: true,
+            authenticated: true,
+            tokenRefreshed: true,
+            user: {
+              id: decodedRefreshToken.id,
+              email: decodedRefreshToken.email,
+              role: decodedRefreshToken.role,
+            },
+          });
+        } catch (refreshTokenError) {
+          // Cả 2 token đều không hợp lệ
+          return res.status(HTTP_STATUS.OK).json({
+            success: false,
+            authenticated: false,
+            message: "Token không hợp lệ hoặc đã hết hạn",
+          });
+        }
       }
     } catch (error) {
       return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({

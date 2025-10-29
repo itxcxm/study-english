@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { useRouter } from "next/navigation";
 import {
   Table,
   TableBody,
@@ -44,6 +45,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, UserPlus, Pencil, Trash2, Shield, Users, UserCheck, UserX } from "lucide-react";
 import api from "@/lib/api";
+import { checkAdminRole } from "@/lib/auth";
 
 // Định nghĩa interface User cho phù hợp với API
 interface User {
@@ -57,8 +59,11 @@ interface User {
   updatedAt: string;
 }
 
+
+
 // Trang quản trị người dùng
 export default function AdminPage() {
+  const router = useRouter();
 
   // State lưu trữ danh sách người dùng, trạng thái loading, dialog, v.v..
   const [users, setUsers] = useState<User[]>([]);
@@ -67,6 +72,7 @@ export default function AdminPage() {
   const [openDialog, setOpenDialog] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   // State lưu thông tin form để tạo/cập nhật user
   const [formData, setFormData] = useState({
     email: "",
@@ -116,10 +122,29 @@ export default function AdminPage() {
     }
   }, [toast]);
 
+  // Kiểm tra quyền admin khi component mount
+  useEffect(() => {
+    const verifyAdmin = async () => {
+      const { isAdmin } = await checkAdminRole();
+      
+      if (!isAdmin) {
+        // Nếu không phải admin, chuyển về trang chủ
+        router.push("/");
+        return;
+      }
+      
+      setIsCheckingAuth(false);
+    };
+
+    verifyAdmin();
+  }, [router]);
+
   // Gọi API lấy user khi lần đầu render
   useEffect(() => {
-    fetchUsers();
-  }, [fetchUsers]);
+    if (!isCheckingAuth) {
+      fetchUsers();
+    }
+  }, [fetchUsers, isCheckingAuth]);
 
   // Tính toán lại số liệu mỗi khi danh sách user thay đổi
   useEffect(() => {
@@ -279,6 +304,15 @@ export default function AdminPage() {
         return "secondary";
     }
   };
+
+  // Hiển thị loading trong khi kiểm tra quyền admin
+  if (isCheckingAuth) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto py-10 px-4 max-w-7xl">
