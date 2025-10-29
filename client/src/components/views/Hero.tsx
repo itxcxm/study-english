@@ -2,9 +2,16 @@
 
 import { Button } from "@/components/ui/button";
 import { BookOpen, Trophy, Users } from "lucide-react";
-import Link from "next/link";
+import { checkAuth } from "@/lib/auth";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export function Hero() {
+  const router = useRouter();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  useEffect(() => {
+    checkAuth(setIsAuthenticated);
+  }, []);
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-green-50 pt-20 pb-16 md:pt-28 md:pb-24">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -29,10 +36,10 @@ export function Hero() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <Button size="lg" className="text-base px-8 py-6 bg-blue-600 hover:bg-blue-700">
+              <Button size="lg" className="text-base px-8 py-6 bg-blue-600 hover:bg-blue-700" onClick={() => isAuthenticated ? router.push("/dashboard") : router.push("/login")}>
                 Bắt đầu học ngay
               </Button>
-              <Button size="lg" variant="outline" className="text-base px-8 py-6">
+              <Button size="lg" variant="outline" className="text-base px-8 py-6" onClick={() => router.push("/courses")}>
                 Thi thử miễn phí
               </Button>
             </div>
