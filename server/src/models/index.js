@@ -36,14 +36,14 @@ import { Nouns } from "./Grammar/Nouns.js";
 import { Pronouns } from "./Grammar/Pronouns.js";
 import { Adjectives } from "./Grammar/Adjectives.js";
 import { Adverbs } from "./Grammar/Adverbs.js";
-import { Verbs } from "./Grammar/Verbs.js";
+import { GrammarVerbs } from "./Grammar/Verbs.js";
 import { Prepositions } from "./Grammar/Prepositions.js";
 import { Conjunctions } from "./Grammar/Conjunctions.js";
 import { Articles } from "./Grammar/Articles.js";
 import { Conditionals } from "./Grammar/Conditionals.js";
 import { PassiveVoice } from "./Grammar/PassiveVoice.js";
 import { ReportedSpeech } from "./Grammar/ReportedSpeech.js";
-import { Questions } from "./Grammar/Questions.js";
+import { GrammarQuestions } from "./Grammar/Questions.js";
 import { Negation } from "./Grammar/Negation.js";
 import { Comparisons } from "./Grammar/Comparisons.js";
 import { Emphasis } from "./Grammar/Emphasis.js";
@@ -113,14 +113,14 @@ export const models = {
   Pronouns,
   Adjectives,
   Adverbs,
-  Verbs,
+  GrammarVerbs,
   Prepositions,
   Conjunctions,
   Articles,
   Conditionals,
   PassiveVoice,
   ReportedSpeech,
-  Questions,
+  GrammarQuestions,
   Negation,
   Comparisons,
   Emphasis,

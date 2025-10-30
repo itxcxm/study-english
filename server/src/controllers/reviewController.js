@@ -4,35 +4,35 @@ import { HTTP_STATUS } from "../utils/constants.js";
 import { authMiddleware, adminMiddleware } from "../middlewares/auth.js";
 
 /**
- * Review Controller
+ * Controller Review
  *
- * Quản lý các endpoint liên quan đến bài tập ôn tập (review questions)
+ * Quản lý các endpoint liên quan đến ôn tập (review questions)
  *
- * API Endpoints:
+ * Các API Endpoint:
  *
  * 1. GET /api/review?topic={TopicName}
  *    - Lấy 20 câu hỏi ngẫu nhiên từ topic được chỉ định
- *    - Topic name phải khớp chính xác với tên file model (ví dụ: "Adjectives", "PresentSimple", "Family")
- *    - Trả về tối đa 20 câu hỏi, hoặc ít hơn nếu topic có ít hơn 20 câu hỏi
+ *    - Tên topic phải trùng khớp với tên model (ví dụ: "Adjectives", "PresentSimple", "Family")
+ *    - Trả về tối đa 20 câu hỏi hoặc ít hơn nếu số lượng không đủ
  *    - Ví dụ: GET /api/review?topic=Adjectives
  *
  * 2. GET /api/review/topics
  *    - Lấy danh sách tất cả các topic có sẵn trong hệ thống
- *    - Sử dụng endpoint này để biết các topic name hợp lệ
+ *    - Sử dụng endpoint này để biết các topic hợp lệ
  *
  * 3. POST /api/review
- *    - Thêm câu hỏi mới vào một topic
- *    - Yêu cầu authentication
- *    - Body format:
+ *    - Thêm câu hỏi mới vào topic
+ *    - Yêu cầu xác thực (authentication)
+ *    - Dạng body:
  *    {
  *      "topic": "Adjectives",           // Tên topic (bắt buộc)
  *      "question": "...",                // Câu hỏi (bắt buộc)
  *      "answers": ["ans1", "ans2", ...], // Mảng 2-6 đáp án (bắt buộc)
- *      "correctAnswer": 0,               // Index của đáp án đúng (bắt buộc)
+ *      "correctAnswer": 0,               // Index đáp án đúng (bắt buộc)
  *      "explanation": "..."              // Giải thích (bắt buộc)
  *    }
  *
- * Response Format (GET):
+ * Format trả về (GET):
  * {
  *   success: true,
  *   topic: "Adjectives",
@@ -40,8 +40,8 @@ import { authMiddleware, adminMiddleware } from "../middlewares/auth.js";
  *   data: [
  *     {
  *       _id: "...",
- *       question: "Choose the correct adjective...",
- *       answers: ["good", "well", "better", "best"],
+ *       question: "...",
+ *       answers: ["...", "...", ...],
  *       correctAnswer: 0,
  *       explanation: "...",
  *       isActive: true,
@@ -52,7 +52,7 @@ import { authMiddleware, adminMiddleware } from "../middlewares/auth.js";
  *   ]
  * }
  *
- * Response Format (POST):
+ * Format trả về (POST):
  * {
  *   success: true,
  *   message: "Thêm câu hỏi thành công",
@@ -69,28 +69,28 @@ export class ReviewController {
 
   // Khởi tạo các route cho review
   initializeRoutes() {
-    // Lấy danh sách tất cả các topic có sẵn
+    // Lấy danh sách topic có sẵn (yêu cầu quyền admin)
     this.router.get("/topics", authMiddleware, adminMiddleware, this.getAvailableTopics);
 
-    // Lấy 20 câu hỏi ngẫu nhiên theo topic
+    // Lấy 20 câu hỏi ngẫu nhiên theo topic (yêu cầu đăng nhập)
     this.router.get("/", authMiddleware, this.getReviews);
 
-    // Thêm câu hỏi mới vào topic
+    // Thêm câu hỏi mới vào topic (yêu cầu quyền admin)
     this.router.post("/", authMiddleware, adminMiddleware, this.addQuestion);
 
-    // Lấy số lượng câu hỏi của topic
+    // Lấy số lượng câu hỏi của topic (yêu cầu đăng nhập)
     this.router.get("/quantity", authMiddleware, this.getQuantity);
 
-    // Xoá câu hỏi khỏi topic
+    // Xoá câu hỏi khỏi topic (yêu cầu quyền admin)
     this.router.delete("/:id", authMiddleware, adminMiddleware, this.deleteQuestion);
   }
 
-  // Lấy 20 câu hỏi ngẫu nhiên từ topic (model file name phải khớp với topic name)
+  // Lấy 20 câu hỏi ngẫu nhiên theo topic
   getReviews = async (req, res) => {
     try {
       const { topic } = req.query;
 
-      // Kiểm tra topic có được cung cấp không
+      // Kiểm tra topic được truyền vào
       if (!topic) {
         return res.status(HTTP_STATUS.BAD_REQUEST).json({
           success: false,
@@ -98,25 +98,26 @@ export class ReviewController {
         });
       }
 
-      // Lấy 20 câu hỏi ngẫu nhiên
+      // Gọi service lấy dữ liệu
       const result = await this.reviewService.getReviews(topic);
 
-      res.status(HTTP_STATUS.OK).json(result);
+      return res.status(HTTP_STATUS.OK).json(result);
     } catch (error) {
-      res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      // Lỗi server
+      return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: error.message,
       });
     }
   };
 
-  // Lấy danh sách tất cả các topic có sẵn
+  // Lấy danh sách topic có sẵn
   getAvailableTopics = async (req, res) => {
     try {
       const result = this.reviewService.getAvailableTopics();
-      res.status(HTTP_STATUS.OK).json(result);
+      return res.status(HTTP_STATUS.OK).json(result);
     } catch (error) {
-      res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: error.message,
       });
@@ -128,7 +129,7 @@ export class ReviewController {
     try {
       const { topic, question, answers, correctAnswer, explanation } = req.body;
 
-      // Validate dữ liệu đầu vào
+      // Kiểm tra dữ liệu đầu vào
       if (!topic) {
         return res.status(HTTP_STATUS.BAD_REQUEST).json({
           success: false,
@@ -149,7 +150,7 @@ export class ReviewController {
         });
       }
 
-      // Thêm câu hỏi mới
+      // Thêm câu hỏi mới vào topic
       const result = await this.reviewService.addQuestion(topic, {
         question,
         answers,
@@ -157,31 +158,52 @@ export class ReviewController {
         explanation,
       });
 
-      res.status(HTTP_STATUS.CREATED).json(result);
+      return res.status(HTTP_STATUS.CREATED).json(result);
     } catch (error) {
-      res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: error.message,
       });
     }
   };
+
+  // Lấy số lượng câu hỏi của topic
   getQuantity = async (req, res) => {
     try {
+      const { topic } = req.query; // Lấy topic từ query
+      if (!topic) {
+        return res.status(HTTP_STATUS.BAD_REQUEST).json({
+          success: false,
+          message: "Tham số 'topic' là bắt buộc để đếm số lượng câu hỏi.",
+        });
+      }
       const result = await this.reviewService.getQuantity(topic);
-      return result;
+      return res.status(HTTP_STATUS.OK).json(result);
     } catch (error) {
-      throw new Error(error.message);
-    }
-  }
-  deleteQuestion = async (req, res) => {
-    try {
-      const result = await this.reviewService.deleteQuestion(topic);
-      return result;
-    } catch (error) {
-      res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: error.message,
       });
     }
-  }
+  };
+
+  // Xóa câu hỏi khỏi topic
+  deleteQuestion = async (req, res) => {
+    try {
+      const { id } = req.params; // Lấy id từ URL param
+      if (!id) {
+        return res.status(HTTP_STATUS.BAD_REQUEST).json({
+          success: false,
+          message: "Thiếu id của câu hỏi cần xoá.",
+        });
+      }
+      const result = await this.reviewService.deleteQuestion(id);
+      return res.status(HTTP_STATUS.OK).json(result);
+    } catch (error) {
+      return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  };
 }
