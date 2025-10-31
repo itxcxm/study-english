@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,43 +9,67 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
-import { User, Mail, Lock, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { User, Lock, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 import { HeaderDash } from '@/components/views/HeaderDash';
+import api from '@/lib/api';
 
 export default function ProfilePage() {
   const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  const [name, setName] = useState('Nguyễn Văn An');
-  const [email, setEmail] = useState('nguyenvanan@example.com');
-  const [avatarUrl, setAvatarUrl] = useState('https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg');
-  const [currentPassword, setCurrentPassword] = useState('');
+  const [userId, setUserId] = useState('');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+
+  // Fetch current user data
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await api.get('/users/me');
+        if (response.data.success && response.data.data) {
+          const user = response.data.data;
+          setUserId(user._id || user.id);
+          setName(user.name || '');
+          setEmail(user.email || '');
+          setAvatarUrl(user.avatar_url || '');
+        }
+      } catch (error: any) {
+        console.error('Error fetching user data:', error);
+        setMessage({ type: 'error', text: 'Không thể tải thông tin người dùng' });
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUserData();
+  }, []);
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     setMessage(null);
 
-    setTimeout(() => {
-      setMessage({ type: 'success', text: 'Cập nhật thông tin thành công!' });
-      setSaving(false);
-    }, 1000);
-  };
-
-  const handleUpdateEmail = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSaving(true);
-    setMessage(null);
-
-    setTimeout(() => {
-      setMessage({
-        type: 'success',
-        text: 'Email đã được cập nhật! Vui lòng kiểm tra hộp thư để xác nhận.'
+    try {
+      const response = await api.put(`/users/${userId}/profile`, {
+        name,
+        email,
+        avatar_url: avatarUrl
       });
+      
+      if (response.data.success) {
+        setMessage({ type: 'success', text: 'Cập nhật thông tin thành công!' });
+      }
+    } catch (error: any) {
+      setMessage({ 
+        type: 'error', 
+        text: error.response?.data?.message || 'Cập nhật thông tin thất bại' 
+      });
+    } finally {
       setSaving(false);
-    }, 1000);
+    }
   };
 
   const handleUpdatePassword = async (e: React.FormEvent) => {
@@ -65,13 +89,24 @@ export default function ProfilePage() {
       return;
     }
 
-    setTimeout(() => {
-      setMessage({ type: 'success', text: 'Mật khẩu đã được cập nhật thành công!' });
-      setCurrentPassword('');
-      setNewPassword('');
-      setConfirmPassword('');
+    try {
+      const response = await api.put(`/users/${userId}/profile`, {
+        password: newPassword
+      });
+      
+      if (response.data.success) {
+        setMessage({ type: 'success', text: 'Mật khẩu đã được cập nhật thành công!' });
+        setNewPassword('');
+        setConfirmPassword('');
+      }
+    } catch (error: any) {
+      setMessage({ 
+        type: 'error', 
+        text: error.response?.data?.message || 'Cập nhật mật khẩu thất bại' 
+      });
+    } finally {
       setSaving(false);
-    }, 1000);
+    }
   };
 
   const getInitials = (name: string) => {
@@ -82,6 +117,20 @@ export default function ProfilePage() {
       .toUpperCase()
       .slice(0, 2) || 'U';
   };
+
+  if (loading) {
+    return (
+      <div><HeaderDash />
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-12 px-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex justify-center items-center min-h-[400px]">
+            <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+          </div>
+        </div>
+      </div>
+      </div>
+    );
+  }
 
   return (
     <div><HeaderDash />
@@ -107,7 +156,7 @@ export default function ProfilePage() {
 
         <div className="flex justify-center mb-8">
           <Avatar className="w-32 h-32 border-4 border-white shadow-lg">
-            <AvatarImage src={avatarUrl} alt={name} />
+            <AvatarImage src={avatarUrl || ""} alt={name} />
             <AvatarFallback className="bg-blue-600 text-white text-3xl">
               {getInitials(name)}
             </AvatarFallback>
@@ -115,14 +164,10 @@ export default function ProfilePage() {
         </div>
 
         <Tabs defaultValue="info" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-8">
+          <TabsList className="grid w-full grid-cols-2 mb-8">
             <TabsTrigger value="info" className="flex items-center gap-2">
               <User className="w-4 h-4" />
               Thông Tin
-            </TabsTrigger>
-            <TabsTrigger value="email" className="flex items-center gap-2">
-              <Mail className="w-4 h-4" />
-              Email
             </TabsTrigger>
             <TabsTrigger value="password" className="flex items-center gap-2">
               <Lock className="w-4 h-4" />
@@ -135,7 +180,7 @@ export default function ProfilePage() {
               <CardHeader>
                 <CardTitle>Thông Tin Cá Nhân</CardTitle>
                 <CardDescription>
-                  Cập nhật tên hiển thị và ảnh đại diện của bạn
+                  Cập nhật thông tin cá nhân của bạn
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -151,6 +196,21 @@ export default function ProfilePage() {
                       onChange={(e) => setName(e.target.value)}
                       placeholder="Nhập tên của bạn"
                       className="h-11"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="email" className="text-base font-medium">
+                      Email
+                    </Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="email@example.com"
+                      className="h-11"
+                      required
                     />
                   </div>
 
@@ -185,65 +245,6 @@ export default function ProfilePage() {
                       </>
                     ) : (
                       'Lưu Thay Đổi'
-                    )}
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="email">
-            <Card className="shadow-lg">
-              <CardHeader>
-                <CardTitle>Thay Đổi Email</CardTitle>
-                <CardDescription>
-                  Cập nhật địa chỉ email của bạn. Bạn sẽ cần xác nhận email mới.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleUpdateEmail} className="space-y-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="email" className="text-base font-medium">
-                      Email Hiện Tại
-                    </Label>
-                    <Input
-                      id="current-email"
-                      type="email"
-                      value="nguyenvanan@example.com"
-                      disabled
-                      className="h-11 bg-slate-100"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="email" className="text-base font-medium">
-                      Email Mới
-                    </Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="email@example.com"
-                      className="h-11"
-                      required
-                    />
-                  </div>
-
-                  <Separator className="my-6" />
-
-                  <Button
-                    type="submit"
-                    disabled={saving}
-                    className="w-full h-11 bg-blue-600 hover:bg-blue-700"
-                  >
-                    {saving ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Đang cập nhật...
-                      </>
-                    ) : (
-                      'Cập Nhật Email'
                     )}
                   </Button>
                 </form>

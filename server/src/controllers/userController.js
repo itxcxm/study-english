@@ -14,9 +14,16 @@ export class UserController {
   // Khởi tạo các route cho User
   initializeRoutes() {
     this.router.get("/", authMiddleware, adminMiddleware, this.getUsers); // Lấy danh sách tất cả user
+    this.router.get("/me", authMiddleware, this.getCurrentUser); // Lấy thông tin user hiện tại
     this.router.get("/:id", authMiddleware, adminMiddleware, this.getUserById); // Lấy thông tin user theo id
     this.router.post("/", authMiddleware, adminMiddleware, this.createUser); // Tạo mới user (chỉ admin)
-    this.router.put("/:id", authMiddleware, adminMiddleware, this.updateUser); // Cập nhật user (chỉ admin)
+    this.router.put(
+      "/:id/admin",
+      authMiddleware,
+      adminMiddleware,
+      this.updateUserByAdmin
+    ); // Admin cập nhật user (username, permissions, status, photo)
+    this.router.put("/:id/profile", authMiddleware, this.updateUserProfile); // User cập nhật profile của mình (password, name, email, photo)
     this.router.delete(
       "/:id",
       authMiddleware,
@@ -64,6 +71,22 @@ export class UserController {
     }
   };
 
+  // Lấy thông tin user hiện tại
+  getCurrentUser = async (req, res) => {
+    try {
+      const user = req.user;
+      res.status(HTTP_STATUS.OK).json({
+        success: true,
+        data: user,
+      });
+    } catch (error) {
+      res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  };
+
   // Lấy thông tin user theo id
   getUserById = async (req, res) => {
     try {
@@ -90,27 +113,69 @@ export class UserController {
     }
   };
 
-  // Cập nhật thông tin user
-  updateUser = async (req, res) => {
+  // Admin cập nhật user: username (name), permissions (role), status, photo (avatar_url)
+  updateUserByAdmin = async (req, res) => {
     try {
       const { id } = req.params;
-      const user = await this.userService.updateUser(id, req.body);
+      const user = await this.userService.updateUserByAdmin(id, req.body);
 
       if (!user) {
-        res.status(HTTP_STATUS.NOT_FOUND).json({
+        return res.status(HTTP_STATUS.NOT_FOUND).json({
           success: false,
           message: "Không tìm thấy user",
         });
-        return;
       }
 
-      res.status(HTTP_STATUS.OK).json({
+      return res.status(HTTP_STATUS.OK).json({
         success: true,
         data: user,
         message: "Cập nhật user thành công",
       });
     } catch (error) {
-      res.status(HTTP_STATUS.BAD_REQUEST).json({
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  };
+
+  // User cập nhật profile của mình: password, name, email, photo (avatar_url)
+  updateUserProfile = async (req, res) => {
+    try {
+      const { id } = req.params;
+      const userId = req.user._id.toString();
+
+      // User chỉ có thể cập nhật profile của chính họ (trừ admin)
+      if (req.user.role !== "admin" && userId !== id) {
+        return res.status(HTTP_STATUS.FORBIDDEN).json({
+          success: false,
+          message: "Bạn chỉ có thể cập nhật profile của chính mình",
+        });
+      }
+
+      const user = await this.userService.updateUserProfile(id, req.body);
+
+      if (!user) {
+        return res.status(HTTP_STATUS.NOT_FOUND).json({
+          success: false,
+          message: "Không tìm thấy user",
+        });
+      }
+
+      return res.status(HTTP_STATUS.OK).json({
+        success: true,
+        data: user,
+        message: "Cập nhật profile thành công",
+      });
+    } catch (error) {
+      // Kiểm tra nếu lỗi là email đã tồn tại
+      if (error.message === "Email đã tồn tại") {
+        return res.status(HTTP_STATUS.CONFLICT).json({
+          success: false,
+          message: error.message,
+        });
+      }
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
         message: error.message,
       });

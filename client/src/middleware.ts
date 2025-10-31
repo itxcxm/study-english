@@ -34,28 +34,46 @@ export async function middleware(req: NextRequest) {
   }
 
   // --- 3️⃣ Nếu route được bảo vệ ---
-  if (!token) {
-    // ❌ Không có token => về login
+  const refreshToken = req.cookies.get("refreshToken")?.value;
+  
+  if (!token && !refreshToken) {
+    // ❌ Không có cả accessToken và refreshToken => về login
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
-  try {
-    // ✅ Verify token và lấy payload
-    const { payload } = await jwtVerify(token, SECRET);
-    
-    // --- 4️⃣ Kiểm tra quyền admin cho route /admin ---
-    if (pathname.startsWith("/admin")) {
-      if (payload.role !== "admin") {
-        // ❌ Không phải admin => về trang chủ
-        return NextResponse.redirect(new URL("/", req.url));
+  // Nếu có token, thử verify
+  if (token) {
+    try {
+      // ✅ Verify token và lấy payload
+      const { payload } = await jwtVerify(token, SECRET);
+      
+      // --- 4️⃣ Kiểm tra quyền admin cho route /admin ---
+      if (pathname.startsWith("/admin")) {
+        if (payload.role !== "admin") {
+          // ❌ Không phải admin => về trang chủ
+          return NextResponse.redirect(new URL("/", req.url));
+        }
       }
+      
+      return NextResponse.next();
+    } catch {
+      // ❌ AccessToken hết hạn hoặc sai, kiểm tra refreshToken
+      if (refreshToken) {
+        // ✅ Có refreshToken => cho phép vào (API interceptor sẽ handle refresh)
+        return NextResponse.next();
+      }
+      // ❌ Không có refreshToken => về login
+      return NextResponse.redirect(new URL("/login", req.url));
     }
-    
-    return NextResponse.next();
-  } catch {
-    // ❌ Token hết hạn hoặc sai => về login
-    return NextResponse.redirect(new URL("/login", req.url));
   }
+
+  // Không có accessToken nhưng có refreshToken => cho phép vào (API interceptor sẽ handle refresh)
+  if (refreshToken) {
+    return NextResponse.next();
+  }
+  
+  // Fallback: về login
+  return NextResponse.redirect(new URL("/login", req.url));
 }
 
 // ⚙️ Áp dụng middleware cho các route cụ thể

@@ -65,6 +65,14 @@ export class AuthController {
         });
       }
 
+      // Kiểm tra tài khoản có hoạt động không
+      const status = await this.authService.checkStatus(email);
+      if (status !== "active") {
+        return res.status(HTTP_STATUS.FORBIDDEN).json({
+          success: false,
+          message: "Tài khoản đã bị vô hiệu hóa",
+        });
+      }
       // Sinh ra token JWT (trả về accessToken và refreshToken)
       const token = await this.jwtService.createTokenJwt(email);
 
@@ -149,11 +157,24 @@ export class AuthController {
         });
       }
 
-      // Kiểm tra access token
+      // Thử kiểm tra access token
       try {
+        // Kiểm tra và giải mã access token
         const decodedAccessToken = await this.authService.checkAccessToken(
           accessToken
         );
+
+        // Kiểm tra tài khoản có hoạt động không
+        const status = await this.authService.checkStatus(
+          decodedAccessToken.email
+        );
+        if (status !== "active") {
+          return res.status(HTTP_STATUS.FORBIDDEN).json({
+            success: false,
+            authenticated: false,
+            message: "Tài khoản đã bị vô hiệu hóa",
+          });
+        }
 
         // Access token hợp lệ, trả về thông tin người dùng
         return res.status(HTTP_STATUS.OK).json({
@@ -167,10 +188,31 @@ export class AuthController {
         });
       } catch (accessTokenError) {
         // Access token không hợp lệ hoặc đã hết hạn, kiểm tra refresh token
+        if (!refreshToken) {
+          return res.status(HTTP_STATUS.OK).json({
+            success: false,
+            authenticated: false,
+            message: "Token không hợp lệ hoặc đã hết hạn",
+          });
+        }
+
         try {
+          // Kiểm tra và giải mã refresh token
           const decodedRefreshToken = await this.authService.checkRefreshToken(
             refreshToken
           );
+
+          // Kiểm tra tài khoản có hoạt động không
+          const status = await this.authService.checkStatus(
+            decodedRefreshToken.email
+          );
+          if (status !== "active") {
+            return res.status(HTTP_STATUS.FORBIDDEN).json({
+              success: false,
+              authenticated: false,
+              message: "Tài khoản đã bị vô hiệu hóa",
+            });
+          }
 
           // Refresh token hợp lệ, tạo token mới
           const newTokens = await this.jwtService.createTokenJwt(

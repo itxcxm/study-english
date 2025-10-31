@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -16,10 +16,77 @@ import {
 import { BookOpen, Menu, User, Settings, LogOut } from 'lucide-react'
 import api from '@/lib/api'
 
+// Interface định nghĩa dữ liệu User
+interface UserData {
+  id: string
+  email: string
+  name: string
+  role: string
+  avatar_url?: string
+}
+
+// HeaderDash là component cho phần header của Dashboard
 export function HeaderDash() {
+  // Trạng thái cho menu Sheet (menu trên mobile)
   const [isOpen, setIsOpen] = useState(false)
+  // Lưu thông tin người dùng
+  const [user, setUser] = useState<UserData | null>(null)
+  // Trạng thái loading khi lấy user
+  const [loading, setLoading] = useState(true)
   const router = useRouter()
 
+  // Hàm lấy dữ liệu người dùng khi component mount
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await api.get("/auth/check")
+        if (response.data.success && response.data.authenticated && response.data.user) {
+          const userData = response.data.user
+          // Lấy thêm profile đầy đủ (có name và avatar_url)
+          try {
+            const profileResponse = await api.get("/users/me")
+            if (profileResponse.data.success && profileResponse.data.data) {
+              setUser(profileResponse.data.data)
+            } else {
+              // Nếu không lấy được profile, fallback dựa vào data từ /auth/check
+              setUser({
+                id: userData.id,
+                email: userData.email,
+                name: userData.email.split('@')[0], // fallback tên là phần trước @ của email
+                role: userData.role,
+              })
+            }
+          } catch {
+            // Nếu có lỗi khi lấy profile, vẫn fallback như trên
+            setUser({
+              id: userData.id,
+              email: userData.email,
+              name: userData.email.split('@')[0], // fallback tên là phần trước @
+              role: userData.role,
+            })
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching user:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchUser()
+  }, [])
+
+  // Hàm lấy ký tự đầu của tên (để render AvatarFallback)
+  const getInitials = (name: string) => {
+    if (!name) return 'U'
+    return name
+      .split(' ')
+      .map(n => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2)
+  }
+
+  // Hàm xử lý đăng xuất
   const handleLogout = async () => {
     try {
       await api.post("/auth/logout")
@@ -27,21 +94,23 @@ export function HeaderDash() {
       router.push("/login")
     } catch (error) {
       console.error("Logout error:", error)
-      // Redirect anyway to ensure user is logged out
       router.push("/login")
     }
   }
 
   return (
-      <header className="w-full border-b bg-white">
+    // Bắt đầu header, gồm logo và các menu
+    <header className="w-full border-b bg-white">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
+        {/* Logo và tên app */}
         <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-600 to-green-600 flex items-center justify-center transition-transform group-hover:scale-105">
+          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-600 to-green-600 flex items-center justify-center transition-transform group-hover:scale-105">
             <BookOpen className="w-6 h-6 text-white" />
-            </div>
-            <span className="text-xl font-bold text-gray-900">EnglishPro</span>
+          </div>
+          <span className="text-xl font-bold text-gray-900">EnglishPro</span>
         </Link>
 
+        {/* Nav menu (desktop, class md:flex) */}
         <nav className="hidden md:flex items-center gap-8">
           <Link
             href="/dashboard"
@@ -69,27 +138,34 @@ export function HeaderDash() {
           </Link>
         </nav>
 
+        {/* User avatar + menu và menu phía mobile */}
         <div className="flex items-center gap-4">
+          {/* DropdownMenu: menu user khi bấm vào avatar (desktop) */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Avatar className="hidden md:flex h-9 w-9 cursor-pointer hover:ring-2 hover:ring-teal-500 hover:ring-offset-2 transition-all">
-                <AvatarImage src="" alt="User" />
+                <AvatarImage src={user?.avatar_url || ""} alt={user?.name || "User"} />
                 <AvatarFallback className="bg-teal-100 text-teal-700 text-sm font-medium">
-                  U
+                  {loading ? 'U' : getInitials(user?.name || 'User')}
                 </AvatarFallback>
               </Avatar>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
+              {/* Hiển thị thông tin người dùng trên dropdown */}
               <div className="flex items-center gap-3 p-2">
                 <Avatar className="h-10 w-10">
-                  <AvatarImage src="" alt="User" />
+                  <AvatarImage src={user?.avatar_url || ""} alt={user?.name || "User"} />
                   <AvatarFallback className="bg-teal-100 text-teal-700 text-sm font-medium">
-                    U
+                    {loading ? 'U' : getInitials(user?.name || 'User')}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col">
-                  <span className="text-sm font-semibold text-gray-900">User</span>
-                  <span className="text-xs text-gray-500">user@example.com</span>
+                  <span className="text-sm font-semibold text-gray-900">
+                    {loading ? 'Loading...' : (user?.name || 'User')}
+                  </span>
+                  <span className="text-xs text-gray-500">
+                    {loading ? '...' : (user?.email || 'user@example.com')}
+                  </span>
                 </div>
               </div>
               <DropdownMenuSeparator />
@@ -116,6 +192,7 @@ export function HeaderDash() {
             </DropdownMenuContent>
           </DropdownMenu>
 
+          {/* Sheet: menu dành cho màn hình mobile - mở khi bấm nút menu */}
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="md:hidden">
@@ -124,19 +201,25 @@ export function HeaderDash() {
             </SheetTrigger>
             <SheetContent side="right" className="w-[280px] sm:w-[320px]">
               <div className="flex flex-col gap-6 mt-8">
+                {/* Thông tin user ở đầu sheet mobile */}
                 <div className="flex items-center gap-3 pb-4 border-b">
                   <Avatar className="h-12 w-12">
-                    <AvatarImage src="" alt="User" />
+                    <AvatarImage src={user?.avatar_url || ""} alt={user?.name || "User"} />
                     <AvatarFallback className="bg-teal-100 text-teal-700 text-base font-medium">
-                      U
+                      {loading ? 'U' : getInitials(user?.name || 'User')}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col">
-                    <span className="text-sm font-semibold text-gray-900">User</span>
-                    <span className="text-xs text-gray-500">user@example.com</span>
+                    <span className="text-sm font-semibold text-gray-900">
+                      {loading ? 'Loading...' : (user?.name || 'User')}
+                    </span>
+                    <span className="text-xs text-gray-500">
+                      {loading ? '...' : (user?.email || 'user@example.com')}
+                    </span>
                   </div>
                 </div>
 
+                {/* Nav cho sheet (mobile) */}
                 <nav className="flex flex-col gap-4">
                   <Link
                     href="/dashboard"
@@ -168,6 +251,7 @@ export function HeaderDash() {
                   </Link>
                 </nav>
 
+                {/* Các link cá nhân, cài đặt, đăng xuất cho sheet mobile */}
                 <div className="flex flex-col gap-3 pt-4 border-t">
                   <Link
                     href="/profile"

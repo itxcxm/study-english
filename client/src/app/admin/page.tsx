@@ -23,7 +23,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Select,
@@ -52,14 +51,12 @@ interface User {
   _id: string;
   email: string;
   name: string;
-  role: "admin" | "user" | "moderator";
+  role: "admin" | "user" | "censor";
   status: "active" | "inactive" | "suspended";
   avatar_url?: string;
   createdAt: string;
   updatedAt: string;
 }
-
-
 
 // Trang quản trị người dùng
 export default function AdminPage() {
@@ -78,7 +75,7 @@ export default function AdminPage() {
     email: "",
     name: "",
     password: "",
-    role: "user" as "admin" | "user" | "moderator",
+    role: "user" as "admin" | "user" | "censor",
     status: "active" as "active" | "inactive" | "suspended",
     avatar_url: "",
   });
@@ -126,13 +123,11 @@ export default function AdminPage() {
   useEffect(() => {
     const verifyAdmin = async () => {
       const { isAdmin } = await checkAdminRole();
-      
       if (!isAdmin) {
         // Nếu không phải admin, chuyển về trang chủ
         router.push("/");
         return;
       }
-      
       setIsCheckingAuth(false);
     };
 
@@ -197,7 +192,7 @@ export default function AdminPage() {
         updateData.password = formData.password;
       }
 
-      const response = await api.put(`/users/${selectedUser._id}`, updateData);
+      const response = await api.put(`/users/${selectedUser._id}/admin`, updateData);
 
       if (response.data.success) {
         setUsers(users.map((u) => (u._id === selectedUser._id ? response.data.data : u)));
@@ -286,7 +281,7 @@ export default function AdminPage() {
     switch (role) {
       case "admin":
         return "default";
-      case "moderator":
+      case "censor":
         return "secondary";
       default:
         return "outline";
@@ -412,7 +407,7 @@ export default function AdminPage() {
                         <TableCell>
                           <Badge variant={getRoleBadgeVariant(user.role)}>
                             {user.role === "admin" && "Quản Trị"}
-                            {user.role === "moderator" && "Kiểm Duyệt"}
+                            {user.role === "censor" && "Kiểm Duyệt Viên"}
                             {user.role === "user" && "Người Dùng"}
                           </Badge>
                         </TableCell>
@@ -493,19 +488,6 @@ export default function AdminPage() {
                 disabled={!!selectedUser}
               />
             </div>
-            {/* Input Mật khẩu */}
-            <div className="space-y-2">
-              <Label htmlFor="password">
-                {selectedUser ? "Mật Khẩu Mới (để trống nếu không đổi)" : "Mật Khẩu"}
-              </Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              />
-            </div>
             {/* Select vai trò */}
             <div className="space-y-2">
               <Label htmlFor="role">Vai Trò</Label>
@@ -518,7 +500,7 @@ export default function AdminPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="user">Người Dùng</SelectItem>
-                  <SelectItem value="moderator">Kiểm Duyệt Viên</SelectItem>
+                  <SelectItem value="censor">Kiểm Duyệt Viên</SelectItem>
                   <SelectItem value="admin">Quản Trị Viên</SelectItem>
                 </SelectContent>
               </Select>

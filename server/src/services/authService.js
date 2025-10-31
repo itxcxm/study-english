@@ -29,4 +29,13 @@ export class AuthService {
   async checkAccessToken(accessToken) {
     return await jwt.verify(accessToken, JWT_CONFIG.SECRET);
   }
+
+  // kiểm tra status
+  async checkStatus(email) {
+    const user = await this.authRepository.findByEmail(email);
+    if (!user) {
+      throw new Error("Người dùng không tồn tại");
+    }
+    return user.status;
+  }
 }
