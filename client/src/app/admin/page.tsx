@@ -45,6 +45,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, UserPlus, Pencil, Trash2, Shield, Users, UserCheck, UserX } from "lucide-react";
 import api from "@/lib/api";
 import { checkAdminRole } from "@/lib/auth";
+import { AdminNav } from "@/components/views/AdminNav";
 
 // Định nghĩa interface User cho phù hợp với API
 interface User {
@@ -310,8 +311,11 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="container mx-auto py-10 px-4 max-w-7xl">
-      <div className="space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-background via-accent/5 to-background">
+      <AdminNav />
+      
+      <div className="container mx-auto py-10 px-4 max-w-7xl">
+        <div className="space-y-6">
         {/* Tiêu đề trang và nút Thêm Người Dùng */}
         <div className="flex items-center justify-between">
           <div>
@@ -592,6 +596,7 @@ export default function AdminPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      </div>
     </div>
   );
 }

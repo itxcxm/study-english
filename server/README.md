@@ -206,16 +206,14 @@ server/
    MONGODB_URI=mongodb://localhost:27017/study-english
 
    # JWT Secrets (use strong, random strings in production)
-   JWT_ACCESS_SECRET=your_access_token_secret_key_here
-   JWT_REFRESH_SECRET=your_refresh_token_secret_key_here
-
-   # Token Expiration
-   JWT_ACCESS_EXPIRES_IN=15m
-   JWT_REFRESH_EXPIRES_IN=7d
+   JWT_SECRET=your_access_token_secret_key_here
+   REFRESH_SECRET=your_refresh_token_secret_key_here
 
    # CORS
    CLIENT_URL=http://localhost:3000
    ```
+
+   **Note**: The `JWT_SECRET` and `REFRESH_SECRET` should be different values. Access token cookies expire in 15 minutes, and refresh token cookies expire in 7 days.
 
 4. **Start MongoDB**
 
@@ -285,7 +283,8 @@ server/
 | GET    | `/api/review/topics`                 | Get available topics    | Yes (Admin)   |
 | GET    | `/api/review/quantity?topic={topic}` | Get question count      | Yes           |
 | POST   | `/api/review`                        | Add new question        | Yes (Admin)   |
-| DELETE | `/api/review/:id`                    | Delete question         | Yes (Admin)   |
+| PUT    | `/api/review/:id`                    | Update question         | Yes (Admin)   |
+| DELETE | `/api/review/:id?topic={topic}`      | Delete question         | Yes (Admin)   |
 
 For detailed API documentation with examples, see [API_EXAMPLES.md](./API_EXAMPLES.md)
 
@@ -582,8 +581,8 @@ All endpoints follow a consistent error response format:
 NODE_ENV=production
 PORT=4000
 MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/study-english
-JWT_ACCESS_SECRET=strong_random_secret_32_chars_min
-JWT_REFRESH_SECRET=different_strong_secret_32_chars_min
+JWT_SECRET=strong_random_secret_32_chars_min
+REFRESH_SECRET=different_strong_secret_32_chars_min
 CLIENT_URL=https://yourdomain.com
 ```
 
@@ -632,7 +631,7 @@ Error: connect ECONNREFUSED 127.0.0.1:27017
 Error: secretOrPrivateKey must have a value
 ```
 
-**Solution**: Set `JWT_ACCESS_SECRET` and `JWT_REFRESH_SECRET` in `.env`
+**Solution**: Set `JWT_SECRET` and `REFRESH_SECRET` in `.env`
 
 ### CORS Error
 

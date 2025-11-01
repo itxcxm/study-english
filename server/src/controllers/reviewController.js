@@ -22,15 +22,34 @@ import { authMiddleware, adminMiddleware } from "../middlewares/auth.js";
  *
  * 3. POST /api/review
  *    - Thêm câu hỏi mới vào topic
- *    - Yêu cầu xác thực (authentication)
+ *    - Yêu cầu quyền admin
  *    - Dạng body:
  *    {
  *      "topic": "Adjectives",           // Tên topic (bắt buộc)
  *      "question": "...",                // Câu hỏi (bắt buộc)
  *      "answers": ["ans1", "ans2", ...], // Mảng 2-6 đáp án (bắt buộc)
  *      "correctAnswer": 0,               // Index đáp án đúng (bắt buộc)
- *      "explanation": "..."              // Giải thích (bắt buộc)
+ *      "explanation": "...",            // Giải thích (bắt buộc)
+ *      "difficulty": "medium"            // Độ khó: easy, medium, hard (tùy chọn)
  *    }
+ *
+ * 4. PUT /api/review/:id
+ *    - Cập nhật câu hỏi trong topic
+ *    - Yêu cầu quyền admin
+ *    - Dạng body:
+ *    {
+ *      "topic": "Adjectives",           // Tên topic (bắt buộc)
+ *      "question": "...",                // Câu hỏi (bắt buộc)
+ *      "answers": ["ans1", "ans2", ...], // Mảng 2-6 đáp án (bắt buộc)
+ *      "correctAnswer": 0,               // Index đáp án đúng (bắt buộc)
+ *      "explanation": "...",            // Giải thích (bắt buộc)
+ *      "difficulty": "medium"            // Độ khó: easy, medium, hard (tùy chọn)
+ *    }
+ *
+ * 5. DELETE /api/review/:id?topic={TopicName}
+ *    - Xóa câu hỏi khỏi topic (đánh dấu isActive = false)
+ *    - Yêu cầu quyền admin
+ *    - Query param topic là bắt buộc
  *
  * Format trả về (GET):
  * {
@@ -59,6 +78,22 @@ import { authMiddleware, adminMiddleware } from "../middlewares/auth.js";
  *   topic: "Adjectives",
  *   data: { ... }
  * }
+ *
+ * Format trả về (PUT):
+ * {
+ *   success: true,
+ *   message: "Cập nhật câu hỏi thành công",
+ *   topic: "Adjectives",
+ *   data: { ... }
+ * }
+ *
+ * Format trả về (DELETE):
+ * {
+ *   success: true,
+ *   message: "Xóa câu hỏi thành công",
+ *   topic: "Adjectives",
+ *   data: { ... }
+ * }
  */
 export class ReviewController {
   constructor() {
@@ -70,7 +105,12 @@ export class ReviewController {
   // Khởi tạo các route cho review
   initializeRoutes() {
     // Lấy danh sách topic có sẵn (yêu cầu quyền admin)
-    this.router.get("/topics", authMiddleware, adminMiddleware, this.getAvailableTopics);
+    this.router.get(
+      "/topics",
+      authMiddleware,
+      adminMiddleware,
+      this.getAvailableTopics
+    );
 
     // Lấy 20 câu hỏi ngẫu nhiên theo topic (yêu cầu đăng nhập)
     this.router.get("/", authMiddleware, this.getReviews);
@@ -78,11 +118,24 @@ export class ReviewController {
     // Thêm câu hỏi mới vào topic (yêu cầu quyền admin)
     this.router.post("/", authMiddleware, adminMiddleware, this.addQuestion);
 
+    // Cập nhật câu hỏi (yêu cầu quyền admin)
+    this.router.put(
+      "/:id",
+      authMiddleware,
+      adminMiddleware,
+      this.updateQuestion
+    );
+
     // Lấy số lượng câu hỏi của topic (yêu cầu đăng nhập)
     this.router.get("/quantity", authMiddleware, this.getQuantity);
 
     // Xoá câu hỏi khỏi topic (yêu cầu quyền admin)
-    this.router.delete("/:id", authMiddleware, adminMiddleware, this.deleteQuestion);
+    this.router.delete(
+      "/:id",
+      authMiddleware,
+      adminMiddleware,
+      this.deleteQuestion
+    );
   }
 
   // Lấy 20 câu hỏi ngẫu nhiên theo topic
@@ -127,7 +180,14 @@ export class ReviewController {
   // Thêm câu hỏi mới vào topic
   addQuestion = async (req, res) => {
     try {
-      const { topic, question, answers, correctAnswer, explanation } = req.body;
+      const {
+        topic,
+        question,
+        answers,
+        correctAnswer,
+        explanation,
+        difficulty,
+      } = req.body;
 
       // Kiểm tra dữ liệu đầu vào
       if (!topic) {
@@ -156,6 +216,7 @@ export class ReviewController {
         answers,
         correctAnswer,
         explanation,
+        difficulty,
       });
 
       return res.status(HTTP_STATUS.CREATED).json(result);
@@ -187,6 +248,65 @@ export class ReviewController {
     }
   };
 
+  // Cập nhật câu hỏi
+  updateQuestion = async (req, res) => {
+    try {
+      const { id } = req.params; // Lấy id từ URL param
+      const {
+        topic,
+        question,
+        answers,
+        correctAnswer,
+        explanation,
+        difficulty,
+      } = req.body;
+
+      // Kiểm tra dữ liệu đầu vào
+      if (!id) {
+        return res.status(HTTP_STATUS.BAD_REQUEST).json({
+          success: false,
+          message: "Thiếu id của câu hỏi cần cập nhật.",
+        });
+      }
+
+      if (!topic) {
+        return res.status(HTTP_STATUS.BAD_REQUEST).json({
+          success: false,
+          message: "Tham số 'topic' là bắt buộc",
+        });
+      }
+
+      if (
+        !question ||
+        !answers ||
+        correctAnswer === undefined ||
+        !explanation
+      ) {
+        return res.status(HTTP_STATUS.BAD_REQUEST).json({
+          success: false,
+          message:
+            "Thiếu thông tin bắt buộc: question, answers, correctAnswer, explanation",
+        });
+      }
+
+      // Cập nhật câu hỏi
+      const result = await this.reviewService.updateQuestion(topic, id, {
+        question,
+        answers,
+        correctAnswer,
+        explanation,
+        difficulty,
+      });
+
+      return res.status(HTTP_STATUS.OK).json(result);
+    } catch (error) {
+      return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  };
+
   // Xóa câu hỏi khỏi topic
   deleteQuestion = async (req, res) => {
     try {
@@ -197,7 +317,17 @@ export class ReviewController {
           message: "Thiếu id của câu hỏi cần xoá.",
         });
       }
-      const result = await this.reviewService.deleteQuestion(id);
+
+      // Need topic to delete - get it from query or body
+      const { topic } = req.query;
+      if (!topic) {
+        return res.status(HTTP_STATUS.BAD_REQUEST).json({
+          success: false,
+          message: "Tham số 'topic' là bắt buộc để xóa câu hỏi.",
+        });
+      }
+
+      const result = await this.reviewService.deleteQuestion(topic, id);
       return res.status(HTTP_STATUS.OK).json(result);
     } catch (error) {
       return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({

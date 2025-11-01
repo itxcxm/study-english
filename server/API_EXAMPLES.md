@@ -1,30 +1,35 @@
 # Review API Documentation
 
-## Tổng quan
+## Overview
 
-API để quản lý câu hỏi ôn tập (review questions) cho các chủ đề khác nhau.
+API for managing review questions across different topics.
 
 ## Base URL
 
 ```
-http://localhost:3000/api/review
+http://localhost:4000/api/review
 ```
 
 ## Authentication
 
-Tất cả các endpoint đều yêu cầu authentication token trong header:
+All endpoints require authentication. The server uses HTTP-only cookies for authentication:
 
-```
-Authorization: Bearer <your-jwt-token>
-```
+- **Access Token**: Stored in `accessToken` cookie (expires in 15 minutes)
+- **Refresh Token**: Stored in `refreshToken` cookie (expires in 7 days)
+
+Cookies are automatically sent with requests when using `withCredentials: true` in axios or fetch.
+
+**Note**: If using tools like cURL or Postman, you'll need to handle cookies manually. For browser-based requests, cookies are handled automatically.
 
 ---
 
 ## Endpoints
 
-### 1. Lấy danh sách tất cả các topic có sẵn
+### 1. Get All Available Topics
 
 **GET** `/api/review/topics`
+
+**Authentication**: Required (Admin only)
 
 **Response:**
 
@@ -107,13 +112,15 @@ Authorization: Bearer <your-jwt-token>
 
 ---
 
-### 2. Lấy 20 câu hỏi ngẫu nhiên từ một topic
+### 2. Get 20 Random Questions from a Topic
 
 **GET** `/api/review?topic={TopicName}`
 
+**Authentication**: Required
+
 **Query Parameters:**
 
-- `topic` (required): Tên của topic, phải khớp chính xác với tên trong danh sách topics
+- `topic` (required): Topic name, must match exactly with topic names from the list
 
 **Example Request:**
 
@@ -176,9 +183,11 @@ GET /api/review?topic=Family
 
 ---
 
-### 3. Thêm câu hỏi mới vào một topic
+### 3. Add New Question to a Topic
 
 **POST** `/api/review`
+
+**Authentication**: Required (Admin only)
 
 **Request Body:**
 
@@ -258,27 +267,135 @@ GET /api/review?topic=Family
 
 ---
 
+### 4. Update Question
+
+**PUT** `/api/review/:id`
+
+**Authentication**: Required (Admin only)
+
+**URL Parameters:**
+
+- `id` (required): Question ID
+
+**Request Body:**
+
+```json
+{
+  "topic": "Adjectives",
+  "question": "She is very ___ at math.",
+  "answers": ["good", "well", "better", "best"],
+  "correctAnswer": 0,
+  "explanation": "We use 'good' as an adjective after the verb 'to be'. 'Well' is typically used as an adverb.",
+  "difficulty": "medium"
+}
+```
+
+**Success Response (200 - OK):**
+
+```json
+{
+  "success": true,
+  "message": "Cập nhật câu hỏi thành công",
+  "topic": "Adjectives",
+  "data": {
+    "_id": "507f1f77bcf86cd799439999",
+    "question": "She is very ___ at math.",
+    "answers": ["good", "well", "better", "best"],
+    "correctAnswer": 0,
+    "explanation": "We use 'good' as an adjective after the verb 'to be'. 'Well' is typically used as an adverb.",
+    "isActive": true,
+    "createdAt": "2025-10-28T12:00:00.000Z",
+    "updatedAt": "2025-10-28T12:30:00.000Z"
+  }
+}
+```
+
+---
+
+### 5. Delete Question
+
+**DELETE** `/api/review/:id?topic={TopicName}`
+
+**Authentication**: Required (Admin only)
+
+**URL Parameters:**
+
+- `id` (required): Question ID
+
+**Query Parameters:**
+
+- `topic` (required): Topic name (required to identify which model to use)
+
+**Success Response (200 - OK):**
+
+```json
+{
+  "success": true,
+  "message": "Xóa câu hỏi thành công",
+  "topic": "Adjectives",
+  "data": {
+    "_id": "507f1f77bcf86cd799439999",
+    "isActive": false
+  }
+}
+```
+
+**Note**: Questions are soft-deleted (marked as `isActive: false`) rather than permanently removed from the database.
+
+---
+
+### 6. Get Question Count
+
+**GET** `/api/review/quantity?topic={TopicName}`
+
+**Authentication**: Required
+
+**Query Parameters:**
+
+- `topic` (required): Topic name
+
+**Success Response (200 - OK):**
+
+```json
+{
+  "success": true,
+  "topic": "Adjectives",
+  "count": 150
+}
+```
+
+---
+
 ## Examples với cURL
 
-### 1. Lấy danh sách topics
+### 1. Get Topics List
+
+**Note**: For cookie-based authentication, you need to store and send cookies. First login to get cookies:
 
 ```bash
-curl -X GET "http://localhost:3000/api/review/topics" \
-  -H "Authorization: Bearer your-jwt-token"
+# Login first to get cookies
+curl -X POST "http://localhost:4000/api/auth" \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@example.com","password":"password123"}' \
+  -c cookies.txt
+
+# Get topics (using stored cookies)
+curl -X GET "http://localhost:4000/api/review/topics" \
+  -b cookies.txt
 ```
 
-### 2. Lấy 20 câu hỏi từ topic Adjectives
+### 2. Get 20 Questions from Topic Adjectives
 
 ```bash
-curl -X GET "http://localhost:3000/api/review?topic=Adjectives" \
-  -H "Authorization: Bearer your-jwt-token"
+curl -X GET "http://localhost:4000/api/review?topic=Adjectives" \
+  -b cookies.txt
 ```
 
-### 3. Thêm câu hỏi mới vào topic Family
+### 3. Add New Question to Topic Family
 
 ```bash
-curl -X POST "http://localhost:3000/api/review" \
-  -H "Authorization: Bearer your-jwt-token" \
+curl -X POST "http://localhost:4000/api/review" \
+  -b cookies.txt \
   -H "Content-Type: application/json" \
   -d '{
     "topic": "Family",
@@ -289,20 +406,47 @@ curl -X POST "http://localhost:3000/api/review" \
   }'
 ```
 
+### 4. Update Question
+
+```bash
+curl -X PUT "http://localhost:4000/api/review/507f1f77bcf86cd799439999" \
+  -b cookies.txt \
+  -H "Content-Type: application/json" \
+  -d '{
+    "topic": "Adjectives",
+    "question": "She is very ___ at math.",
+    "answers": ["good", "well", "better", "best"],
+    "correctAnswer": 0,
+    "explanation": "We use '\''good'\'' as an adjective after the verb '\''to be'\''."
+  }'
+```
+
+### 5. Delete Question
+
+```bash
+curl -X DELETE "http://localhost:4000/api/review/507f1f77bcf86cd799439999?topic=Adjectives" \
+  -b cookies.txt
+```
+
+### 6. Get Question Count
+
+```bash
+curl -X GET "http://localhost:4000/api/review/quantity?topic=Adjectives" \
+  -b cookies.txt
+```
+
 ---
 
-## Examples với JavaScript (fetch)
+## Examples with JavaScript (fetch)
 
-### 1. Lấy danh sách topics
+### 1. Get Topics List
 
 ```javascript
 const getTopics = async () => {
   try {
-    const response = await fetch("http://localhost:3000/api/review/topics", {
+    const response = await fetch("http://localhost:4000/api/review/topics", {
       method: "GET",
-      headers: {
-        Authorization: `Bearer ${yourToken}`,
-      },
+      credentials: "include", // Important: sends cookies automatically
     });
 
     const data = await response.json();
@@ -313,18 +457,16 @@ const getTopics = async () => {
 };
 ```
 
-### 2. Lấy 20 câu hỏi ngẫu nhiên
+### 2. Get 20 Random Questions
 
 ```javascript
 const getQuestions = async (topic) => {
   try {
     const response = await fetch(
-      `http://localhost:3000/api/review?topic=${topic}`,
+      `http://localhost:4000/api/review?topic=${topic}`,
       {
         method: "GET",
-        headers: {
-          Authorization: `Bearer ${yourToken}`,
-        },
+        credentials: "include", // Important: sends cookies automatically
       }
     );
 
@@ -335,21 +477,21 @@ const getQuestions = async (topic) => {
   }
 };
 
-// Sử dụng
+// Usage
 getQuestions("Adjectives");
 ```
 
-### 3. Thêm câu hỏi mới
+### 3. Add New Question
 
 ```javascript
 const addQuestion = async (questionData) => {
   try {
-    const response = await fetch("http://localhost:3000/api/review", {
+    const response = await fetch("http://localhost:4000/api/review", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${yourToken}`,
         "Content-Type": "application/json",
       },
+      credentials: "include", // Important: sends cookies automatically
       body: JSON.stringify({
         topic: "PresentSimple",
         question: "She ___ to school every day.",
@@ -368,33 +510,105 @@ const addQuestion = async (questionData) => {
 };
 ```
 
+### 4. Update Question
+
+```javascript
+const updateQuestion = async (questionId, questionData) => {
+  try {
+    const response = await fetch(
+      `http://localhost:4000/api/review/${questionId}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include", // Important: sends cookies automatically
+        body: JSON.stringify(questionData),
+      }
+    );
+
+    const data = await response.json();
+    console.log("Question updated:", data);
+  } catch (error) {
+    console.error("Error:", error);
+  }
+};
+```
+
+### 5. Delete Question
+
+```javascript
+const deleteQuestion = async (questionId, topic) => {
+  try {
+    const response = await fetch(
+      `http://localhost:4000/api/review/${questionId}?topic=${topic}`,
+      {
+        method: "DELETE",
+        credentials: "include", // Important: sends cookies automatically
+      }
+    );
+
+    const data = await response.json();
+    console.log("Question deleted:", data);
+  } catch (error) {
+    console.error("Error:", error);
+  }
+};
+```
+
+### 6. Get Question Count
+
+```javascript
+const getQuestionCount = async (topic) => {
+  try {
+    const response = await fetch(
+      `http://localhost:4000/api/review/quantity?topic=${topic}`,
+      {
+        method: "GET",
+        credentials: "include", // Important: sends cookies automatically
+      }
+    );
+
+    const data = await response.json();
+    console.log(`Topic "${data.topic}" has ${data.count} questions`);
+  } catch (error) {
+    console.error("Error:", error);
+  }
+};
+```
+
 ---
 
 ## Validation Rules
 
 ### Answers Array
 
-- Phải là một mảng (array)
-- Chứa từ **2 đến 6** phần tử
-- Mỗi phần tử là một chuỗi (string)
+- Must be an array
+- Must contain between **2 and 6** elements
+- Each element must be a string
 
 ### correctAnswer
 
-- Phải là một số nguyên (integer)
-- Giá trị phải >= 0
-- Giá trị phải < độ dài của mảng answers
-- Ví dụ: Nếu answers có 4 phần tử, correctAnswer phải từ 0-3
+- Must be an integer
+- Value must be >= 0
+- Value must be < the length of the answers array
+- Example: If answers has 4 elements, correctAnswer must be 0-3
 
 ### Question & Explanation
 
-- Phải là chuỗi không rỗng
-- Sẽ được trim (loại bỏ khoảng trắng đầu cuối)
+- Must be non-empty strings
+- Will be trimmed (whitespace removed from start/end)
 
 ### Topic
 
-- Phải khớp chính xác với tên model
-- Case-sensitive (phân biệt chữ hoa/thường)
-- Ví dụ: "Adjectives" ✓, "adjectives" ✗, "ADJECTIVES" ✗
+- Must match exactly with the model name
+- Case-sensitive (distinguishes uppercase/lowercase)
+- Example: "Adjectives" ✓, "adjectives" ✗, "ADJECTIVES" ✗
+
+### Difficulty (Optional)
+
+- Valid values: "easy", "medium", "hard"
+- Can be omitted when creating/updating questions
 
 ---
 
@@ -416,15 +630,19 @@ PresentSimple, PresentContinuous, PresentPerfect, PresentPerfectContinuous, Past
 
 ## Notes
 
-1. **Random Selection**: Mỗi lần gọi GET endpoint sẽ trả về 20 câu hỏi ngẫu nhiên khác nhau (nếu có đủ).
+1. **Random Selection**: Each GET request returns 20 random questions (or fewer if not enough available).
 
-2. **Active Questions Only**: Chỉ những câu hỏi có `isActive: true` mới được trả về.
+2. **Active Questions Only**: Only questions with `isActive: true` are returned.
 
-3. **Auto-Generated Fields**: Khi thêm câu hỏi mới, các field sau sẽ tự động được tạo:
+3. **Auto-Generated Fields**: When adding a new question, these fields are automatically created:
 
    - `_id`: MongoDB ObjectId
-   - `isActive`: true (mặc định)
-   - `createdAt`: Timestamp khi tạo
-   - `updatedAt`: Timestamp khi cập nhật
+   - `isActive`: true (default)
+   - `createdAt`: Creation timestamp
+   - `updatedAt`: Update timestamp
 
-4. **Topic Names**: Topic name phải khớp chính xác với tên file model. Sử dụng endpoint `/api/review/topics` để xem danh sách chính xác.
+4. **Topic Names**: Topic name must match exactly with the model file name. Use the `/api/review/topics` endpoint to get the exact list of available topics.
+
+5. **Cookie-Based Authentication**: The API uses HTTP-only cookies for authentication. Make sure to include `credentials: "include"` in fetch requests or `withCredentials: true` in axios configuration.
+
+6. **Soft Delete**: DELETE endpoint marks questions as inactive (`isActive: false`) rather than permanently deleting them from the database.

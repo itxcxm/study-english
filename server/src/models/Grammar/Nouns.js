@@ -34,6 +34,12 @@ const nounsSchema = new Schema(
       required: true,
       trim: true,
     },
+    difficulty: {
+      type: String,
+      enum: ['easy', 'medium', 'hard'],
+      default: 'medium',
+      required: true,
+    },
     isActive: {
       type: Boolean,
       default: true,

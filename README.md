@@ -138,13 +138,10 @@ MONGODB_URI=mongodb://localhost:27017/study-english
 # JWT Secrets - Use strong, unique values (32+ characters recommended)
 JWT_SECRET=your_strong_secret_key_here_for_access_tokens
 REFRESH_SECRET=your_strong_refresh_key_here_different_from_above
-# Token Expiration Times
-JWT_ACCESS_EXPIRES_IN=15m  # Access token lifetime
-JWT_REFRESH_EXPIRES_IN=7d  # Refresh token lifetime
 CLIENT_URL=http://localhost:3000
 ```
 
-**Note**: The `JWT_SECRET` and `REFRESH_SECRET` should be different values. The access token expires in 15 minutes, but users stay logged in for 7 days via the refresh token mechanism.
+**Note**: The `JWT_SECRET` and `REFRESH_SECRET` should be different values. The access token cookie expires in 15 minutes, and the refresh token cookie expires in 7 days. Users stay logged in for 7 days via the refresh token mechanism.
 
 ```bash
 # Start the server
@@ -289,7 +286,8 @@ db.users.updateOne({ email: "admin@example.com" }, { $set: { role: "admin" } });
 - `GET /api/review/topics` - Get all available topics (admin only)
 - `GET /api/review/quantity?topic={topic}` - Get question count
 - `POST /api/review` - Add new question (admin only)
-- `DELETE /api/review/:id` - Delete question (admin only)
+- `PUT /api/review/:id` - Update question (admin only)
+- `DELETE /api/review/:id?topic={topic}` - Delete question (admin only)
 
 For detailed API documentation with examples, see [Server API Documentation](./server/API_EXAMPLES.md)
 
@@ -305,10 +303,11 @@ For detailed API documentation with examples, see [Server API Documentation](./s
 
 1. User logs in with email and password
 2. Server validates credentials and generates JWT tokens:
-   - **Access Token**: Short-lived (15 minutes) for API requests
-   - **Refresh Token**: Long-lived (7 days) for token renewal
+   - **Access Token**: Short-lived (cookie expires in 15 minutes) for API requests
+   - **Refresh Token**: Long-lived (cookie expires in 7 days) for token renewal
 3. Both tokens stored in HTTP-only cookies (XSS protection)
-4. **Automatic Token Refresh System**:
+4. Cookies are automatically sent with requests (no manual token handling required)
+5. **Automatic Token Refresh System**:
    - When access token expires, client detects 401 error
    - Client automatically calls `/api/auth/check` endpoint
    - Server validates refresh token:
@@ -316,8 +315,8 @@ For detailed API documentation with examples, see [Server API Documentation](./s
      - ❌ If refresh token is expired: returns 401, client redirects to login
    - All pending requests are queued and retried after token refresh
    - User experiences no interruption - stays logged in seamlessly
-5. Protected routes require valid authentication
-6. Server-side middleware automatically refreshes tokens on expired access tokens
+6. Protected routes require valid authentication
+7. Server-side middleware automatically refreshes tokens on expired access tokens
 
 ### Token Refresh Mechanism
 
