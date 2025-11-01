@@ -16,7 +16,7 @@ export class UserController {
     this.router.get("/", authMiddleware, adminMiddleware, this.getUsers); // Lấy danh sách tất cả user
     this.router.get("/me", authMiddleware, this.getCurrentUser); // Lấy thông tin user hiện tại
     this.router.get("/:id", authMiddleware, adminMiddleware, this.getUserById); // Lấy thông tin user theo id
-    this.router.post("/", authMiddleware, adminMiddleware, this.createUser); // Tạo mới user (chỉ admin)
+    this.router.post("/", this.createUser); // Tạo mới user 
     this.router.put(
       "/:id/admin",
       authMiddleware,
