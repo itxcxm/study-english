@@ -1,13 +1,14 @@
 "use client";
 
 // Import React hooks và Next.js navigation
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 
 // Import UI components
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+
 
 // Import icons từ Lucide React
 import { ArrowLeft, CheckCircle2, XCircle, SkipForward, Home, BookOpen } from "lucide-react";
@@ -20,7 +21,7 @@ import { cn } from "@/lib/utils";
  * Component trang luyện tập câu hỏi
  * Hiển thị câu hỏi theo từng bước và xử lý logic trả lời
  */
-export default function PracticePage() {
+function PracticeContent() {
   // Lấy tham số từ URL
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -269,5 +270,17 @@ export default function PracticePage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function PracticePage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-[400px]">
+        <p className="text-slate-600">Đang tải...</p>
+      </div>
+    }>
+      <PracticeContent />
+    </Suspense>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 // Import Next.js navigation hooks
+import { Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 
 // Import UI components
@@ -14,7 +15,7 @@ import { Trophy, RotateCcw, Home, TrendingUp, BookOpen, ArrowLeft } from "lucide
  * Component trang kết quả bài luyện tập
  * Hiển thị điểm số, phần trăm đúng và các tùy chọn điều hướng
  */
-export default function ResultPage() {
+function ResultContent() {
   // Lấy tham số từ URL
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -187,5 +188,17 @@ export default function ResultPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function ResultPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-[400px]">
+        <p className="text-slate-600">Đang tải...</p>
+      </div>
+    }>
+      <ResultContent />
+    </Suspense>
   );
 }
