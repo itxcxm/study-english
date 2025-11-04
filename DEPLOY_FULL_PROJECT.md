@@ -201,7 +201,7 @@ vercel --prod
    - **Framework Preset**: Next.js (tự động detect)
    - **Build Command**: `npm run build` (tự động)
    - **Output Directory**: `.next` (tự động)
-   - **Install Command**: `npm install`
+   - **Install Command**: `npm install --legacy-peer-deps` (hoặc để mặc định nếu đã có `.npmrc`)
 
 4. **Click Deploy**
 
@@ -385,15 +385,43 @@ Vercel tự động deploy khi:
 - Đảm bảo username/password đúng
 - Kiểm tra Network Access trong MongoDB Atlas
 
-### Lỗi 4: Build Error
+### Lỗi 4: Build Error / ERESOLVE Error
 
-**Lỗi**: Build failed
+**Lỗi**:
+
+```
+npm error ERESOLVE could not resolve
+npm error While resolving: vaul@0.9.9
+npm error Found: react@19.2.0
+```
 
 **Giải pháp**:
 
-- Kiểm tra logs trên Vercel Dashboard
-- Kiểm tra dependencies trong `package.json`
-- Đảm bảo Node.js version tương thích
+✅ **Đã được fix tự động**:
+
+- File `.npmrc` đã được tạo với `legacy-peer-deps=true`
+- File `package.json` đã có `overrides` cho React 19.2.0
+
+**Nếu vẫn gặp lỗi**:
+
+1. **Cập nhật Install Command trên Vercel**:
+
+   - Vào **Settings** → **General** → **Build & Development Settings**
+   - **Install Command**: `npm install --legacy-peer-deps`
+   - **Save** và **Redeploy**
+
+2. **Hoặc kiểm tra**:
+
+   - File `.npmrc` đã được commit
+   - File `package.json` có `overrides` section
+   - Kiểm tra logs trên Vercel Dashboard
+
+3. **Xem chi tiết**: Xem file `DEPLOY_FIX_CLIENT.md`
+
+**Lưu ý**:
+
+- Lỗi này xảy ra do React 19.2.0 và một số packages chưa tương thích hoàn toàn
+- `legacy-peer-deps` là giải pháp tạm thời, nên cập nhật packages khi có version tương thích
 
 ---
 
