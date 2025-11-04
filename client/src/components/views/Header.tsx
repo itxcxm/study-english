@@ -10,17 +10,17 @@ import { checkAuth } from "@/lib/auth";
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true); // Loading state để tránh flash button
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true); // 🇻🇳 Loading state để tránh flash button
 
   useEffect(() => {
-    // Chỉ kiểm tra trạng thái đăng nhập 1 lần khi component mount
-    // Các lần sau, khi user gửi request về server, API interceptor sẽ tự động kiểm tra và refresh token
+    // 🇻🇳 Chỉ kiểm tra trạng thái đăng nhập 1 lần khi component mount
+    // 🇻🇳 Các lần sau, khi user gửi request về server, API interceptor sẽ tự động kiểm tra và refresh token
     const checkAuthStatus = async () => {
       setIsCheckingAuth(true);
       try {
         await checkAuth(setIsAuthenticated);
       } catch (error) {
-        // Đảm bảo set authenticated = false nếu có lỗi
+        // 🇻🇳 Đảm bảo set authenticated = false nếu có lỗi
         setIsAuthenticated(false);
       } finally {
         setIsCheckingAuth(false);
@@ -61,7 +61,7 @@ export function Header() {
 
           <div className="hidden md:flex items-center gap-4">
             {isCheckingAuth ? (
-              // Hiển thị loading state trong khi check auth
+              // 🇻🇳 Hiển thị loading state trong khi check auth
               <div className="w-20 h-10"></div>
             ) : isAuthenticated ? (
               <Link href="/dashboard">
@@ -130,7 +130,7 @@ export function Header() {
             </Link>
             <div className="flex flex-col gap-2 pt-4">
               {isCheckingAuth ? (
-                // Hiển thị loading state trong khi check auth
+                // 🇻🇳 Hiển thị loading state trong khi check auth
                 <div className="w-full h-10"></div>
               ) : isAuthenticated ? (
                 <Link href="/dashboard">

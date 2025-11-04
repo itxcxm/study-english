@@ -24,15 +24,15 @@ export default function RegisterPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   
   useEffect(() => {
-    // Chỉ kiểm tra trạng thái đăng nhập 1 lần khi component mount
-    // Các lần sau, khi user gửi request về server, API interceptor sẽ tự động kiểm tra và refresh token
+    // 🇻🇳 Chỉ kiểm tra trạng thái đăng nhập 1 lần khi component mount
+    // 🇻🇳 Các lần sau, khi user gửi request về server, API interceptor sẽ tự động kiểm tra và refresh token
     const checkAuth = async () => {
       try {
         const response = await api.get("/auth/check");
         const authenticated = response.data.authenticated || false;
         setIsAuthenticated(authenticated);
         
-        // Nếu đã đăng nhập, redirect đến dashboard
+        // 🇻🇳 Nếu đã đăng nhập, redirect đến dashboard
         if (authenticated) {
           router.push("/dashboard");
         }
@@ -41,7 +41,7 @@ export default function RegisterPage() {
       }
     };
     
-    // Chỉ check 1 lần khi mount, không check định kỳ
+    // 🇻🇳 Chỉ check 1 lần khi mount, không check định kỳ
     checkAuth();
   }, [router]);
 
@@ -49,19 +49,19 @@ export default function RegisterPage() {
     e.preventDefault();
     setError("");
     
-    // Validate password match
+    // 🇻🇳 Validate password match
     if (password !== confirmPassword) {
       setError("Mật khẩu xác nhận không khớp");
       return;
     }
 
-    // Validate password length
+    // 🇻🇳 Validate password length
     if (password.length < 6) {
       setError("Mật khẩu phải có ít nhất 6 ký tự");
       return;
     }
 
-    // Validate terms agreement
+    // 🇻🇳 Validate terms agreement
     if (!agreedToTerms) {
       setError("Vui lòng đồng ý với điều khoản sử dụng");
       return;
@@ -78,7 +78,7 @@ export default function RegisterPage() {
 
       if (response.data.success) {
         setSuccess(true);
-        // Redirect to login after 2 seconds
+        // 🇻🇳 Redirect to login after 2 seconds
         setTimeout(() => {
           router.push("/login");
         }, 2000);

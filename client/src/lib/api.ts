@@ -1,31 +1,32 @@
 import axios, { AxiosError } from "axios";
 
 /**
- * Axios instance với cấu hình cho cookie-based authentication
+ * 🇻🇳 Axios instance với cấu hình cho cookie-based authentication
  * 
- * Cấu hình Cookie (Server):
+ * 🇻🇳 Cấu hình Cookie (Server):
  * - Production: sameSite: "None", secure: true (cross-domain)
  * - Development: sameSite: "Lax", secure: false (same-domain)
  * 
- * Cấu hình Client:
+ * 🇻🇳 Cấu hình Client:
  * - withCredentials: true - Bắt buộc để gửi cookies với cross-domain requests
  * - Cookies được gửi tự động với mọi request
  */
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api", // Địa chỉ backend với prefix /api
-  withCredentials: true, // ✅ Bắt buộc: Cho phép gửi cookie qua HTTP request (cross-domain)
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api", // 🇻🇳 Địa chỉ backend với prefix /api
+  withCredentials: true, // 🇻🇳 Bắt buộc: Cho phép gửi cookie qua HTTP request (cross-domain)
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-// Flag để tránh vòng lặp vô hạn khi refresh token
+// 🇻🇳 Flag để tránh vòng lặp vô hạn khi refresh token
 let isRefreshing = false;
 let failedQueue: Array<{
   resolve: (value?: any) => void;
   reject: (error?: any) => void;
 }> = [];
 
+// 🇻🇳 Xử lý queue các request đang chờ khi refresh token
 const processQueue = (error: AxiosError | null, token: string | null = null) => {
   failedQueue.forEach((prom) => {
     if (error) {
@@ -38,16 +39,16 @@ const processQueue = (error: AxiosError | null, token: string | null = null) => 
   failedQueue = [];
 };
 
-// Interceptor để xử lý response và refresh token khi accessToken hết hạn
+// 🇻🇳 Interceptor để xử lý response và refresh token khi accessToken hết hạn
 api.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
     const originalRequest = error.config as any;
 
-    // Nếu lỗi là 401 và chưa retry
+    // 🇻🇳 Nếu lỗi là 401 (Unauthorized) và chưa retry request này
     if (error.response?.status === 401 && !originalRequest._retry) {
+      // 🇻🇳 Nếu đang refresh token, đợi và retry lại request sau khi refresh xong
       if (isRefreshing) {
-        // Nếu đang refresh, đợi và retry lại request
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
         })
@@ -64,44 +65,44 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        // Gọi endpoint check auth để refresh token
-        // ✅ Sử dụng axios instance riêng với withCredentials để đảm bảo cookies được gửi
+        // 🇻🇳 Gọi endpoint /auth/check để refresh token
+        // 🇻🇳 Sử dụng axios instance riêng với withCredentials để đảm bảo cookies được gửi
         const response = await axios.get(
           `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/auth/check`,
           {
-            withCredentials: true, // ✅ Quan trọng: Gửi cookies với request
+            withCredentials: true, // 🇻🇳 Quan trọng: Gửi cookies với request để server refresh token
           }
         );
 
-        // Nếu refresh thành công, xử lý queue và retry request ban đầu
+        // 🇻🇳 Nếu refresh thành công, xử lý queue và retry request ban đầu
         if (response.data.success && response.data.authenticated) {
           processQueue(null, null);
           return api(originalRequest);
         } else {
-          // Refresh token cũng đã hết hạn, đăng xuất
+          // 🇻🇳 Refresh token cũng đã hết hạn, đăng xuất
           throw new Error("Refresh token đã hết hạn");
         }
       } catch (refreshError) {
-        // Refresh token đã hết hạn, đăng xuất người dùng
+        // 🇻🇳 Refresh token đã hết hạn, đăng xuất người dùng
         processQueue(refreshError as AxiosError, null);
         
-        // Xóa cookies và chuyển hướng về login
+        // 🇻🇳 Xóa cookies và chuyển hướng về login
         if (typeof window !== "undefined") {
-          // Gọi logout endpoint để xóa cookies trên server
+          // 🇻🇳 Gọi logout endpoint để xóa cookies trên server
           try {
             await axios.post(
               `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/auth/logout`,
               {},
               { 
-                withCredentials: true, // ✅ Quan trọng: Gửi cookies để server có thể xóa
+                withCredentials: true, // 🇻🇳 Quan trọng: Gửi cookies để server có thể xóa
               }
             );
           } catch (logoutError) {
-            // Bỏ qua lỗi logout - có thể cookies đã bị xóa hoặc server không phản hồi
+            // 🇻🇳 Bỏ qua lỗi logout - có thể cookies đã bị xóa hoặc server không phản hồi
             console.warn("Yêu cầu logout thất bại, nhưng vẫn tiếp tục chuyển hướng:", logoutError);
           }
           
-          // Chuyển hướng về trang login
+          // 🇻🇳 Chuyển hướng về trang login
           window.location.href = "/login";
         }
         

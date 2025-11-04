@@ -19,23 +19,23 @@ export default function LoginPage() {
   const [inputValue, setInputValue] = useState('');
 
   const handleSubmit = (e:any) => {
-    e.preventDefault(); // Ngăn reload trang
-    // Thực hiện các hành động khác như gọi API, cập nhật state, v.v.
+    e.preventDefault(); // 🇻🇳 Ngăn reload trang
+    // 🇻🇳 Thực hiện các hành động khác như gọi API, cập nhật state, v.v.
   };
 
 
   /**
-   * Xử lý đăng nhập
-   * Cookies (accessToken, refreshToken) sẽ được server tự động set vào response
-   * withCredentials: true đã được cấu hình trong api instance để gửi cookies
+   * 🇻🇳 Xử lý đăng nhập
+   * 🇻🇳 Cookies (accessToken, refreshToken) sẽ được server tự động set vào response
+   * 🇻🇳 withCredentials: true đã được cấu hình trong api instance để gửi cookies
    */
   const handleLogin = async () => {
     try {
-      // ✅ Cookies sẽ được server set tự động trong response
-      // withCredentials: true trong api instance đảm bảo cookies được gửi và nhận
+      // 🇻🇳 Cookies sẽ được server set tự động trong response
+      // 🇻🇳 withCredentials: true trong api instance đảm bảo cookies được gửi và nhận
       const response = await api.post("/auth", { email: email, password: password });
       if (response.data.success) {
-        // Cookies đã được set, redirect về trang chủ
+        // 🇻🇳 Cookies đã được set, redirect về trang chủ
         router.push("/");
       }
     } catch (err: any) {
