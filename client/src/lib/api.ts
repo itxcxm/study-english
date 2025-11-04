@@ -1,9 +1,22 @@
 import axios, { AxiosError } from "axios";
 
-// Tạo instance axios với cấu hình backend và gửi cookie (credentials)
+/**
+ * Axios instance với cấu hình cho cookie-based authentication
+ * 
+ * Cấu hình Cookie (Server):
+ * - Production: sameSite: "None", secure: true (cross-domain)
+ * - Development: sameSite: "Lax", secure: false (same-domain)
+ * 
+ * Cấu hình Client:
+ * - withCredentials: true - Bắt buộc để gửi cookies với cross-domain requests
+ * - Cookies được gửi tự động với mọi request
+ */
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api", // Địa chỉ backend với prefix /api
-  withCredentials: true, // Cho phép gửi cookie qua HTTP request
+  withCredentials: true, // ✅ Bắt buộc: Cho phép gửi cookie qua HTTP request (cross-domain)
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
 // Flag để tránh vòng lặp vô hạn khi refresh token
@@ -52,10 +65,11 @@ api.interceptors.response.use(
 
       try {
         // Gọi endpoint check auth để refresh token
+        // ✅ Sử dụng axios instance riêng với withCredentials để đảm bảo cookies được gửi
         const response = await axios.get(
           `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/auth/check`,
           {
-            withCredentials: true,
+            withCredentials: true, // ✅ Quan trọng: Gửi cookies với request
           }
         );
 
@@ -64,26 +78,30 @@ api.interceptors.response.use(
           processQueue(null, null);
           return api(originalRequest);
         } else {
-          // Refresh token cũng đã hết hạn, logout
-          throw new Error("Refresh token expired");
+          // Refresh token cũng đã hết hạn, đăng xuất
+          throw new Error("Refresh token đã hết hạn");
         }
       } catch (refreshError) {
-        // Refresh token đã hết hạn, logout user
+        // Refresh token đã hết hạn, đăng xuất người dùng
         processQueue(refreshError as AxiosError, null);
         
-        // Xóa cookies và redirect về login
+        // Xóa cookies và chuyển hướng về login
         if (typeof window !== "undefined") {
-          // Gọi logout endpoint để xóa cookies
+          // Gọi logout endpoint để xóa cookies trên server
           try {
             await axios.post(
               `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/auth/logout`,
               {},
-              { withCredentials: true }
+              { 
+                withCredentials: true, // ✅ Quan trọng: Gửi cookies để server có thể xóa
+              }
             );
           } catch (logoutError) {
-            // Ignore logout errors
+            // Bỏ qua lỗi logout - có thể cookies đã bị xóa hoặc server không phản hồi
+            console.warn("Yêu cầu logout thất bại, nhưng vẫn tiếp tục chuyển hướng:", logoutError);
           }
           
+          // Chuyển hướng về trang login
           window.location.href = "/login";
         }
         
