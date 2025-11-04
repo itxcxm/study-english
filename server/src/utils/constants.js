@@ -21,3 +21,16 @@ export const JWT_CONFIG = {
   EXPIRES_IN: "7d", // Thời gian hết hạn token
   EXPIRES_IN_REFRESH: "7d", // Thời gian hết hạn token
 };
+
+// Cookie configuration helper
+export const getCookieOptions = () => {
+  const isProduction = process.env.NODE_ENV === "production";
+
+  // Trong production (cross-domain): cần sameSite: "None" và secure: true
+  // Trong development (same domain): có thể dùng sameSite: "Lax" hoặc "Strict"
+  return {
+    httpOnly: true,
+    secure: isProduction, // Bắt buộc true khi sameSite: "None"
+    sameSite: isProduction ? "None" : "Lax", // "None" cho cross-domain, "Lax" cho same-domain
+  };
+};

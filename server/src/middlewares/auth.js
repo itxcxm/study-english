@@ -1,6 +1,10 @@
 import jwt from "jsonwebtoken";
 import { User } from "../models/User.js";
-import { HTTP_STATUS, JWT_CONFIG } from "../utils/constants.js";
+import {
+  HTTP_STATUS,
+  JWT_CONFIG,
+  getCookieOptions,
+} from "../utils/constants.js";
 import { JwtService } from "../services/jwtService.js";
 
 /**
@@ -107,19 +111,14 @@ export const authMiddleware = async (req, res, next) => {
             });
           }
 
-          // Thiết lập cookie accessToken mới
+          // Thiết lập cookie accessToken và refreshToken mới
+          const cookieOptions = getCookieOptions();
           res.cookie("accessToken", newTokens.accessToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "Strict",
+            ...cookieOptions,
             maxAge: 15 * 60 * 1000, // 15 phút
           });
-
-          // Thiết lập cookie refreshToken mới
           res.cookie("refreshToken", newTokens.refreshToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "Strict",
+            ...cookieOptions,
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 ngày
           });
 

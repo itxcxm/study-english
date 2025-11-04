@@ -17,7 +17,7 @@ const app = express();
 
 // Cấu hình CORS - sử dụng environment variable hoặc localhost cho development
 const allowedOrigins = process.env.CLIENT_URL
-  ? process.env.CLIENT_URL.split(",")
+  ? process.env.CLIENT_URL.split(",") 
   : ["http://localhost:3000"];
 
 app.use(

@@ -1,6 +1,10 @@
 import { Router } from "express";
 import { AuthService } from "../services/authService.js";
-import { HTTP_STATUS, JWT_CONFIG } from "../utils/constants.js";
+import {
+  HTTP_STATUS,
+  JWT_CONFIG,
+  getCookieOptions,
+} from "../utils/constants.js";
 import { authMiddleware } from "../middlewares/auth.js";
 import { JwtService } from "../services/jwtService.js";
 import jwt from "jsonwebtoken";
@@ -85,18 +89,15 @@ export class AuthController {
       }
 
       // Thiết lập cookie accessToken (chỉ gửi qua https, httpOnly, chặn CSRF, thời gian sống 15 phút)
+      const cookieOptions = getCookieOptions();
       res.cookie("accessToken", token.accessToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production", // Chỉ dùng HTTPS trong production
-        sameSite: "Strict",
+        ...cookieOptions,
         maxAge: 15 * 60 * 1000, // 15 phút
       });
 
       // Thiết lập cookie refreshToken (chỉ gửi qua https, httpOnly, chặn CSRF, sống 7 ngày)
       res.cookie("refreshToken", token.refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "Strict",
+        ...cookieOptions,
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 ngày
       });
 
@@ -118,17 +119,9 @@ export class AuthController {
   logout = async (req, res) => {
     try {
       // Xóa cookies bằng cách set giá trị rỗng và expires trong quá khứ
-      res.clearCookie("accessToken", {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "Strict",
-      });
-
-      res.clearCookie("refreshToken", {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "Strict",
-      });
+      const cookieOptions = getCookieOptions();
+      res.clearCookie("accessToken", cookieOptions);
+      res.clearCookie("refreshToken", cookieOptions);
 
       return res.status(HTTP_STATUS.OK).json({
         success: true,
@@ -227,19 +220,14 @@ export class AuthController {
             });
           }
 
-          // Thiết lập cookie accessToken mới
+          // Thiết lập cookie accessToken và refreshToken mới
+          const cookieOptions = getCookieOptions();
           res.cookie("accessToken", newTokens.accessToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "Strict",
+            ...cookieOptions,
             maxAge: 15 * 60 * 1000, // 15 phút
           });
-
-          // Thiết lập cookie refreshToken mới
           res.cookie("refreshToken", newTokens.refreshToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "Strict",
+            ...cookieOptions,
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 ngày
           });
 
