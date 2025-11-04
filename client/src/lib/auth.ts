@@ -35,13 +35,15 @@ export const checkAuth = async (setIsAuthenticated: (authenticated: boolean) => 
     if (error.response?.status === 403) {
       // Tài khoản bị vô hiệu hóa, logout và chuyển về login
       await handleLogout();
+      setIsAuthenticated(false);
       return;
     }
-    // Nếu là 401, API interceptor đã xử lý refresh hoặc logout
-    // Chỉ set authenticated = false nếu không phải là lỗi token
-    if (error.response?.status !== 401) {
-      setIsAuthenticated(false);
-    }
+    // Nếu là 401, có thể là:
+    // 1. API interceptor đang refresh token (đang xử lý)
+    // 2. Hoặc cả accessToken và refreshToken đều hết hạn (đã logout)
+    // Để an toàn, set authenticated = false
+    // Nếu API interceptor refresh thành công, sẽ có request khác và set lại authenticated
+    setIsAuthenticated(false);
   }
 };
 
