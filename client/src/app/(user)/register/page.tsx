@@ -24,7 +24,8 @@ export default function RegisterPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   
   useEffect(() => {
-    // Kiểm tra trạng thái đăng nhập qua API
+    // Chỉ kiểm tra trạng thái đăng nhập 1 lần khi component mount
+    // Các lần sau, khi user gửi request về server, API interceptor sẽ tự động kiểm tra và refresh token
     const checkAuth = async () => {
       try {
         const response = await api.get("/auth/check");
@@ -40,10 +41,8 @@ export default function RegisterPage() {
       }
     };
     
+    // Chỉ check 1 lần khi mount, không check định kỳ
     checkAuth();
-    // Kiểm tra định kỳ trạng thái đăng nhập
-    const interval = setInterval(checkAuth, 2000);
-    return () => clearInterval(interval);
   }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {

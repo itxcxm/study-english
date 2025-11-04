@@ -10,6 +10,8 @@ export function Hero() {
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   useEffect(() => {
+    // Chỉ kiểm tra trạng thái đăng nhập 1 lần khi component mount
+    // Các lần sau, khi user gửi request về server, API interceptor sẽ tự động kiểm tra và refresh token
     checkAuth(setIsAuthenticated);
   }, []);
   return (
