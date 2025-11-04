@@ -9,18 +9,20 @@ const protectedRoutes = ["/dashboard", "/profile", "/admin"];
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
-  const token = req.cookies.get("accessToken")?.value;
+  const accessToken = req.cookies.get("accessToken")?.value;
+  const refreshToken = req.cookies.get("refreshToken")?.value;
 
   // --- 1️⃣ Nếu người dùng vào /login hoặc /register ---
   if (pathname === "/login" || pathname === "/register") {
-    // Nếu có token => kiểm tra hợp lệ
-    if (token) {
+    // Nếu có accessToken, thử verify để redirect về dashboard
+    if (accessToken) {
       try {
-        await jwtVerify(token, SECRET);
+        await jwtVerify(accessToken, SECRET);
         // ✅ Token hợp lệ => redirect sang dashboard
         return NextResponse.redirect(new URL("/dashboard", req.url));
       } catch {
-        // ❌ Token lỗi => cho vào trang bình thường
+        // ❌ Token hết hạn hoặc sai, nhưng có refreshToken => cho vào trang (API interceptor sẽ handle)
+        // Nếu không có refreshToken => cho vào trang bình thường
         return NextResponse.next();
       }
     }
@@ -34,46 +36,20 @@ export async function middleware(req: NextRequest) {
   }
 
   // --- 3️⃣ Nếu route được bảo vệ ---
-  const refreshToken = req.cookies.get("refreshToken")?.value;
+  // ✅ Với cross-domain cookies, middleware chỉ nên check sự tồn tại của cookies
+  // ✅ Để API interceptor xử lý verify và refresh token
+  // ✅ Nếu có refreshToken hoặc accessToken, cho phép vào (API interceptor sẽ verify)
   
-  if (!token && !refreshToken) {
+  if (!accessToken && !refreshToken) {
     // ❌ Không có cả accessToken và refreshToken => về login
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
-  // Nếu có token, thử verify
-  if (token) {
-    try {
-      // ✅ Verify token và lấy payload
-      const { payload } = await jwtVerify(token, SECRET);
-      
-      // --- 4️⃣ Kiểm tra quyền admin cho route /admin ---
-      if (pathname.startsWith("/admin")) {
-        if (payload.role !== "admin") {
-          // ❌ Không phải admin => về trang chủ
-          return NextResponse.redirect(new URL("/", req.url));
-        }
-      }
-      
-      return NextResponse.next();
-    } catch {
-      // ❌ AccessToken hết hạn hoặc sai, kiểm tra refreshToken
-      if (refreshToken) {
-        // ✅ Có refreshToken => cho phép vào (API interceptor sẽ handle refresh)
-        return NextResponse.next();
-      }
-      // ❌ Không có refreshToken => về login
-      return NextResponse.redirect(new URL("/login", req.url));
-    }
-  }
-
-  // Không có accessToken nhưng có refreshToken => cho phép vào (API interceptor sẽ handle refresh)
-  if (refreshToken) {
-    return NextResponse.next();
-  }
+  // ✅ Có ít nhất một trong hai cookies => cho phép vào
+  // ✅ API interceptor sẽ tự động verify và refresh token nếu cần
+  // ✅ Với cross-domain cookies, middleware không nên verify token (có thể không đọc được cookies)
   
-  // Fallback: về login
-  return NextResponse.redirect(new URL("/login", req.url));
+  return NextResponse.next();
 }
 
 // ⚙️ Áp dụng middleware cho các route cụ thể

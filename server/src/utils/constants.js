@@ -32,5 +32,7 @@ export const getCookieOptions = () => {
     httpOnly: true,
     secure: isProduction, // Bắt buộc true khi sameSite: "None"
     sameSite: isProduction ? "None" : "Lax", // "None" cho cross-domain, "Lax" cho same-domain
+    path: "/", // Đảm bảo cookies được gửi cho mọi path
+    // Không set domain để cookies có thể được gửi cho bất kỳ domain nào (với sameSite: "None")
   };
 };
