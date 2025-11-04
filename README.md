@@ -389,6 +389,13 @@ npm run lint
 
 ## 🚀 Deployment
 
+### 📚 Hướng Dẫn Deploy
+
+**Deploy toàn bộ dự án lên Vercel:**
+
+- 🚀 **[Hướng dẫn deploy nhanh](./DEPLOY_QUICK_GUIDE.md)** - Deploy trong 30 phút
+- 📖 **[Hướng dẫn deploy chi tiết](./DEPLOY_FULL_PROJECT.md)** - Hướng dẫn đầy đủ với troubleshooting
+
 ### Production Build
 
 #### Server
@@ -411,7 +418,7 @@ npm run start
 **Recommended Platforms:**
 
 - **Frontend**: Vercel, Netlify, AWS Amplify
-- **Backend**: Heroku, Railway, Render, DigitalOcean
+- **Backend**: Vercel (Serverless), Heroku, Railway, Render, DigitalOcean
 - **Database**: MongoDB Atlas
 
 ### Production Checklist

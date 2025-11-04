@@ -15,9 +15,26 @@ const app = express();
 
 // Cấu hình middleware
 
+// Cấu hình CORS - sử dụng environment variable hoặc localhost cho development
+const allowedOrigins = process.env.CLIENT_URL
+  ? process.env.CLIENT_URL.split(",")
+  : ["http://localhost:3000"];
+
 app.use(
   cors({
-    origin: "http://localhost:3000", // chỉ định origin cụ thể
+    origin: function (origin, callback) {
+      // Cho phép requests không có origin (mobile apps, Postman, etc.)
+      if (!origin) return callback(null, true);
+
+      if (
+        allowedOrigins.indexOf(origin) !== -1 ||
+        process.env.NODE_ENV === "development"
+      ) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true, // cho phép gửi cookie
   })
 );
