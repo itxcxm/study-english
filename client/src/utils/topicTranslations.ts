@@ -1,4 +1,7 @@
-// Bản đồ dịch các tên chủ đề từ tiếng Anh sang tiếng Việt
+/**
+ * 🇻🇳 Bản đồ dịch các tên chủ đề từ tiếng Anh sang tiếng Việt
+ * 🇻🇳 Sử dụng để hiển thị tên chủ đề bằng tiếng Việt cho người dùng
+ */
 export const topicTranslations: Record<string, string> = {
   // Các thì động từ (Verb Tenses)
   'PresentSimple': 'Hiện tại đơn',
@@ -75,11 +78,16 @@ export const topicTranslations: Record<string, string> = {
   'VerbsActions': 'Động từ & Hành động',
 };
 
-// Hàm chuyển chủ đề từ dạng URL (kebab-case) sang dạng PascalCase theo server
+/**
+ * 🇻🇳 Hàm chuyển chủ đề từ dạng URL (kebab-case) sang dạng PascalCase theo server
+ * 🇻🇳 Đảm bảo tên chủ đề khớp với format được sử dụng trong backend
+ * @param topic - Tên chủ đề ở dạng kebab-case hoặc snake_case
+ * @returns Tên chủ đề đã được chuẩn hóa sang PascalCase
+ */
 export function normalizeTopicKey(topic: string): string {
   if (!topic) return topic;
 
-  // Chuyển từ kebab-case/snake_case sang PascalCase
+  // 🇻🇳 Hàm helper: Chuyển từ kebab-case/snake_case sang PascalCase
   const toPascal = (s: string) =>
     s
       .split(/[-_\s]+/)
@@ -87,7 +95,7 @@ export function normalizeTopicKey(topic: string): string {
       .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
       .join("");
 
-  // Đối chiếu các trường hợp đặc biệt cho tên ghép
+  // 🇻🇳 Đối chiếu các trường hợp đặc biệt cho tên ghép (các từ có dấu gạch ngang)
   const specialCases: Record<string, string> = {
     "dates-seasons": "DatesSeasons",
     "food-drinks": "FoodDrinks",
@@ -123,36 +131,41 @@ export function normalizeTopicKey(topic: string): string {
     "verbs-actions": "VerbsActions",
   };
 
-  // Ưu tiên kiểm tra trường hợp đặc biệt trước
+  // 🇻🇳 Ưu tiên kiểm tra trường hợp đặc biệt trước
   if (specialCases[topic.toLowerCase()]) {
     return specialCases[topic.toLowerCase()];
   }
 
-  // Kiểm tra khớp trực tiếp (đã là PascalCase)
+  // 🇻🇳 Kiểm tra khớp trực tiếp (đã là PascalCase)
   if (topicTranslations[topic]) return topic;
 
-  // Chuyển sang PascalCase
+  // 🇻🇳 Chuyển sang PascalCase và kiểm tra lại
   const pascalKey = toPascal(topic);
   if (topicTranslations[pascalKey]) return pascalKey;
 
-  // Không khớp thì trả lại phiên bản PascalCase
+  // 🇻🇳 Không khớp thì trả lại phiên bản PascalCase
   return pascalKey || topic;
 }
 
-// Hàm dịch tên chủ đề sang tiếng Việt
+/**
+ * 🇻🇳 Hàm dịch tên chủ đề sang tiếng Việt
+ * 🇻🇳 Hỗ trợ nhiều định dạng đầu vào (PascalCase, kebab-case, snake_case, v.v.)
+ * @param topic - Tên chủ đề cần dịch (có thể ở nhiều định dạng khác nhau)
+ * @returns Tên chủ đề đã được dịch sang tiếng Việt, hoặc trả về nguyên bản nếu không tìm thấy
+ */
 export function translateTopic(topic: string): string {
   if (!topic) return topic;
 
-  // 1) So khớp trực tiếp với key
+  // 🇻🇳 1) So khớp trực tiếp với key trong bản đồ dịch
   if (topicTranslations[topic]) return topicTranslations[topic];
 
-  // 2) So khớp không phân biệt hoa thường với key
+  // 🇻🇳 2) So khớp không phân biệt hoa thường với key
   const directKey = Object.keys(topicTranslations).find(
     (k) => k.toLowerCase() === topic.toLowerCase()
   );
   if (directKey) return topicTranslations[directKey];
 
-  // 3) Chuẩn hoá các trường hợp chủ đề thường gặp từ URL sang PascalCase trong map
+  // 🇻🇳 3) Chuẩn hoá các trường hợp chủ đề thường gặp từ URL sang PascalCase trong map
   const toPascal = (s: string) =>
     s
       .split(/[-_\s]+/)
@@ -163,12 +176,12 @@ export function translateTopic(topic: string): string {
   const pascalKey = toPascal(topic);
   if (topicTranslations[pascalKey]) return topicTranslations[pascalKey];
 
-  // 4) Thử loại bỏ dấu phân cách và viết hoa chữ cái đầu, kiểm tra lại
+  // 🇻🇳 4) Thử loại bỏ dấu phân cách và viết hoa chữ cái đầu, kiểm tra lại
   const compact = topic.replace(/[-_\s]+/g, "");
   const compactPascal = compact.charAt(0).toUpperCase() + compact.slice(1);
   if (topicTranslations[compactPascal]) return topicTranslations[compactPascal];
 
-  // 5) Không tìm thấy: trả về nguyên bản
+  // 🇻🇳 5) Không tìm thấy: trả về nguyên bản
   return topic;
 }
 

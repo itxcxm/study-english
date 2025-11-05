@@ -1,4 +1,15 @@
 "use client"
+
+/**
+ * 🇻🇳 Trang chủ - Home Page
+ * 🇻🇳 Trang landing page chính của website, hiển thị các section:
+ * - Header: Menu điều hướng
+ * - Hero: Banner giới thiệu chính
+ * - Courses: Danh sách khóa học
+ * - Features: Các tính năng nổi bật
+ * - Pricing: Bảng giá
+ * - Footer: Chân trang
+ */
 import { Header } from "@/components/views/Header";
 import { Hero } from "@/components/views/Hero";
 import { Courses } from "@/components/views/Courses";

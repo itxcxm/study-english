@@ -1,53 +1,50 @@
-import { Router } from "express";
-import { ReviewService } from "../services/reviewServices.js";
-import { HTTP_STATUS } from "../utils/constants.js";
-import { authMiddleware, adminMiddleware } from "../middlewares/auth.js";
-
 /**
- * Controller Review
+ * 🇻🇳 Controller Review - Quản lý các endpoint liên quan đến ôn tập (review questions)
+ * 🇻🇳 Xử lý các request liên quan đến câu hỏi ôn tập, bao gồm:
+ * 🇻🇳 - Lấy câu hỏi theo topic
+ * 🇻🇳 - Lấy danh sách topics
+ * 🇻🇳 - Thêm/sửa/xóa câu hỏi (yêu cầu quyền admin)
  *
- * Quản lý các endpoint liên quan đến ôn tập (review questions)
+ * 🇻🇳 Các API Endpoint:
  *
- * Các API Endpoint:
+ * 🇻🇳 1. GET /api/review?topic={TopicName}
+ * 🇻🇳    - Lấy 20 câu hỏi ngẫu nhiên từ topic được chỉ định
+ * 🇻🇳    - Tên topic phải trùng khớp với tên model (ví dụ: "Adjectives", "PresentSimple", "Family")
+ * 🇻🇳    - Trả về tối đa 20 câu hỏi hoặc ít hơn nếu số lượng không đủ
+ * 🇻🇳    - Ví dụ: GET /api/review?topic=Adjectives
  *
- * 1. GET /api/review?topic={TopicName}
- *    - Lấy 20 câu hỏi ngẫu nhiên từ topic được chỉ định
- *    - Tên topic phải trùng khớp với tên model (ví dụ: "Adjectives", "PresentSimple", "Family")
- *    - Trả về tối đa 20 câu hỏi hoặc ít hơn nếu số lượng không đủ
- *    - Ví dụ: GET /api/review?topic=Adjectives
+ * 🇻🇳 2. GET /api/review/topics
+ * 🇻🇳    - Lấy danh sách tất cả các topic có sẵn trong hệ thống
+ * 🇻🇳    - Sử dụng endpoint này để biết các topic hợp lệ
  *
- * 2. GET /api/review/topics
- *    - Lấy danh sách tất cả các topic có sẵn trong hệ thống
- *    - Sử dụng endpoint này để biết các topic hợp lệ
+ * 🇻🇳 3. POST /api/review
+ * 🇻🇳    - Thêm câu hỏi mới vào topic
+ * 🇻🇳    - Yêu cầu quyền admin
+ * 🇻🇳    - Dạng body:
+ * 🇻🇳    {
+ * 🇻🇳      "topic": "Adjectives",           // Tên topic (bắt buộc)
+ * 🇻🇳      "question": "...",                // Câu hỏi (bắt buộc)
+ * 🇻🇳      "answers": ["ans1", "ans2", ...], // Mảng 2-6 đáp án (bắt buộc)
+ * 🇻🇳      "correctAnswer": 0,               // Index đáp án đúng (bắt buộc)
+ * 🇻🇳      "explanation": "...",            // Giải thích (bắt buộc)
+ * 🇻🇳      "difficulty": "medium"            // Độ khó: easy, medium, hard (tùy chọn)
+ * 🇻🇳    }
  *
- * 3. POST /api/review
- *    - Thêm câu hỏi mới vào topic
- *    - Yêu cầu quyền admin
- *    - Dạng body:
- *    {
- *      "topic": "Adjectives",           // Tên topic (bắt buộc)
- *      "question": "...",                // Câu hỏi (bắt buộc)
- *      "answers": ["ans1", "ans2", ...], // Mảng 2-6 đáp án (bắt buộc)
- *      "correctAnswer": 0,               // Index đáp án đúng (bắt buộc)
- *      "explanation": "...",            // Giải thích (bắt buộc)
- *      "difficulty": "medium"            // Độ khó: easy, medium, hard (tùy chọn)
- *    }
+ * 🇻🇳 4. PUT /api/review/:id
+ * 🇻🇳    - Cập nhật câu hỏi trong topic
+ * 🇻🇳    - Yêu cầu quyền admin
+ * 🇻🇳    - Dạng body:
+ * 🇻🇳    {
+ * 🇻🇳      "topic": "Adjectives",           // Tên topic (bắt buộc)
+ * 🇻🇳      "question": "...",                // Câu hỏi (bắt buộc)
+ * 🇻🇳      "answers": ["ans1", "ans2", ...], // Mảng 2-6 đáp án (bắt buộc)
+ * 🇻🇳      "correctAnswer": 0,               // Index đáp án đúng (bắt buộc)
+ * 🇻🇳      "explanation": "...",            // Giải thích (bắt buộc)
+ * 🇻🇳      "difficulty": "medium"            // Độ khó: easy, medium, hard (tùy chọn)
+ * 🇻🇳    }
  *
- * 4. PUT /api/review/:id
- *    - Cập nhật câu hỏi trong topic
- *    - Yêu cầu quyền admin
- *    - Dạng body:
- *    {
- *      "topic": "Adjectives",           // Tên topic (bắt buộc)
- *      "question": "...",                // Câu hỏi (bắt buộc)
- *      "answers": ["ans1", "ans2", ...], // Mảng 2-6 đáp án (bắt buộc)
- *      "correctAnswer": 0,               // Index đáp án đúng (bắt buộc)
- *      "explanation": "...",            // Giải thích (bắt buộc)
- *      "difficulty": "medium"            // Độ khó: easy, medium, hard (tùy chọn)
- *    }
- *
- * 5. DELETE /api/review/:id?topic={TopicName}
- *    - Xóa câu hỏi khỏi topic (đánh dấu isActive = false)
+ * 🇻🇳 5. DELETE /api/review/:id?topic={TopicName}
+ * 🇻🇳    - Xóa câu hỏi khỏi topic (đánh dấu isActive = false)
  *    - Yêu cầu quyền admin
  *    - Query param topic là bắt buộc
  *

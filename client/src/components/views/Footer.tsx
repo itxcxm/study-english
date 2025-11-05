@@ -1,3 +1,7 @@
+/**
+ * 🇻🇳 Component Footer - phần chân trang của website
+ * 🇻🇳 Hiển thị thông tin liên hệ, các link điều hướng, và mạng xã hội
+ */
 import { BookOpen, Facebook, Instagram, Youtube, Mail } from "lucide-react";
 import Link from "next/link";
 

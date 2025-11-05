@@ -1,3 +1,8 @@
+/**
+ * 🇻🇳 Component Header - Header chính của website
+ * 🇻🇳 Hiển thị logo, menu điều hướng và các nút đăng nhập/đăng ký
+ * 🇻🇳 Tự động kiểm tra trạng thái đăng nhập và hiển thị tương ứng
+ */
 "use client";
 
 import { Button } from "@/components/ui/button";

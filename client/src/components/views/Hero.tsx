@@ -1,5 +1,9 @@
 "use client";
 
+/**
+ * 🇻🇳 Component Hero - phần banner chính của trang chủ
+ * 🇻🇳 Hiển thị thông tin giới thiệu, nút kêu gọi hành động và thống kê
+ */
 import { Button } from "@/components/ui/button";
 import { BookOpen, Trophy, Users } from "lucide-react";
 import { checkAuth } from "@/lib/auth";
@@ -9,9 +13,11 @@ import { useRouter } from "next/navigation";
 export function Hero() {
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  
+  // 🇻🇳 Kiểm tra trạng thái đăng nhập khi component mount
   useEffect(() => {
-    // Chỉ kiểm tra trạng thái đăng nhập 1 lần khi component mount
-    // Các lần sau, khi user gửi request về server, API interceptor sẽ tự động kiểm tra và refresh token
+    // 🇻🇳 Chỉ kiểm tra trạng thái đăng nhập 1 lần khi component mount
+    // 🇻🇳 Các lần sau, khi user gửi request về server, API interceptor sẽ tự động kiểm tra và refresh token
     checkAuth(setIsAuthenticated);
   }, []);
   return (

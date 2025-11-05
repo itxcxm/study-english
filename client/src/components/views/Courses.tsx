@@ -1,9 +1,14 @@
+/**
+ * 🇻🇳 Component hiển thị danh sách khóa học
+ * 🇻🇳 Hiển thị các khóa học IELTS và TOEIC với thông tin chi tiết
+ */
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Clock, Users, Star, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
+// 🇻🇳 Dữ liệu mẫu các khóa học (trong thực tế sẽ lấy từ API)
 const courses = [
   {
     id: 1,

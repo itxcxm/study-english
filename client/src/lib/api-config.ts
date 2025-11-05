@@ -1,35 +1,35 @@
 /**
- * API Configuration Utility
- * Handles API base URL for both development and production environments
+ * 🇻🇳 Tiện ích cấu hình API
+ * 🇻🇳 Xử lý URL cơ sở của API cho môi trường development và production
  */
 
 /**
- * Get the API base URL
- * In production, this should be set via NEXT_PUBLIC_API_URL environment variable
- * Falls back to localhost for development
+ * 🇻🇳 Lấy URL cơ sở của API
+ * 🇻🇳 Trong môi trường production, cần thiết lập biến môi trường NEXT_PUBLIC_API_URL
+ * 🇻🇳 Mặc định sẽ sử dụng localhost cho môi trường development
  */
 export function getApiBaseUrl(): string {
-  // In production, NEXT_PUBLIC_API_URL should be set to your production API URL
-  // Example: https://api.yourdomain.com/api
+  // 🇻🇳 Trong production, NEXT_PUBLIC_API_URL nên được thiết lập với URL API production
+  // 🇻🇳 Ví dụ: https://api.yourdomain.com/api
   if (process.env.NEXT_PUBLIC_API_URL) {
     return process.env.NEXT_PUBLIC_API_URL;
   }
 
-  // Development fallback
+  // 🇻🇳 Mặc định cho môi trường development
   if (process.env.NODE_ENV === "development") {
     return "http://localhost:4000/api";
   }
 
-  // Production fallback - should not reach here if env var is set correctly
-  // This is a safety net that will cause errors if not configured properly
+  // 🇻🇳 Mặc định cho production - không nên chạy đến đây nếu biến môi trường được cấu hình đúng
+  // 🇻🇳 Đây là lớp bảo vệ sẽ gây lỗi nếu không được cấu hình đúng
   console.error(
-    "⚠️ NEXT_PUBLIC_API_URL is not set! Please configure it in your environment variables."
+    "⚠️ NEXT_PUBLIC_API_URL chưa được thiết lập! Vui lòng cấu hình nó trong biến môi trường."
   );
   return "";
 }
 
 /**
- * Check if we're in production environment
+ * 🇻🇳 Kiểm tra xem có đang ở môi trường production không
  */
 export function isProduction(): boolean {
   return process.env.NODE_ENV === "production";

@@ -1,5 +1,9 @@
 'use client';
 
+/**
+ * 🇻🇳 Component điều hướng cho Admin Panel
+ * 🇻🇳 Hiển thị menu điều hướng với các mục: Quản lý người dùng, Quản lý câu hỏi, Quản lý khóa học
+ */
 import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, navigationMenuTriggerStyle } from "@/components/ui/navigation-menu";
 import { Users, MessageSquare, GraduationCap } from 'lucide-react';
 import { cn } from "@/lib/utils";

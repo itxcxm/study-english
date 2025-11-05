@@ -1,5 +1,9 @@
-// Các import cần thiết cho thẻ câu hỏi (Hiển thị câu hỏi, badge/nhãn, nút, icon)
-// Tiện ích dịch tên chủ đề sang tiếng Việt cũng được import
+/**
+ * 🇻🇳 Component QuestionCard - Hiển thị thẻ câu hỏi
+ * 🇻🇳 Hiển thị thông tin chi tiết của một câu hỏi với các nút chỉnh sửa và xóa
+ */
+// 🇻🇳 Các import cần thiết cho thẻ câu hỏi (Hiển thị câu hỏi, badge/nhãn, nút, icon)
+// 🇻🇳 Tiện ích dịch tên chủ đề sang tiếng Việt cũng được import
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -7,35 +11,35 @@ import { Question } from '@/types/question';
 import { translateTopic } from '@/utils/topicTranslations';
 import { Edit2, Trash2, BookOpen, Calendar } from 'lucide-react';
 
-// Props của component hiển thị thẻ câu hỏi
+// 🇻🇳 Props của component hiển thị thẻ câu hỏi
 interface QuestionCardProps {
-  question: Question; // Đối tượng câu hỏi
-  onEdit: (question: Question) => void; // Callback khi ấn nút sửa
-  onDelete: (id: string) => void; // Callback khi ấn nút xóa
+  question: Question; // 🇻🇳 Đối tượng câu hỏi
+  onEdit: (question: Question) => void; // 🇻🇳 Callback khi ấn nút sửa
+  onDelete: (id: string) => void; // 🇻🇳 Callback khi ấn nút xóa
 }
 
-// Nhãn tiếng Việt cho từng loại danh mục câu hỏi
+// 🇻🇳 Nhãn tiếng Việt cho từng loại danh mục câu hỏi
 const categoryLabels: Record<Question['category'], string> = {
   grammar: 'Ngữ pháp',
   vocabulary: 'Từ vựng',
   'verb-tenses': 'Thì động từ',
 };
 
-// Nhãn mức độ khó tiếng Việt cho câu hỏi
+// 🇻🇳 Nhãn mức độ khó tiếng Việt cho câu hỏi
 const difficultyLabels: Record<Question['difficulty'], string> = {
   easy: 'Dễ',
   medium: 'Trung bình',
   hard: 'Khó',
 };
 
-// Màu sắc tương ứng cho badge mức độ khó
+// 🇻🇳 Màu sắc tương ứng cho badge mức độ khó
 const difficultyColors: Record<Question['difficulty'], string> = {
   easy: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
   medium: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
   hard: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
 };
 
-// Component QuestionCard hiển thị 1 thẻ thông tin câu hỏi (chỉ dùng cho admin danh sách quản lý câu hỏi)
+// 🇻🇳 Component QuestionCard hiển thị 1 thẻ thông tin câu hỏi (chỉ dùng cho admin danh sách quản lý câu hỏi)
 export const QuestionCard = ({ question, onEdit, onDelete }: QuestionCardProps) => {
   return (
     // Thẻ card đẹp, hiệu ứng shadow khi hover

@@ -1,8 +1,13 @@
+/**
+ * 🇻🇳 Component hiển thị bảng giá các gói dịch vụ
+ * 🇻🇳 Hiển thị các gói: Miễn phí, Premium, VIP với các tính năng và giá cả
+ */
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Check } from "lucide-react";
 
+// 🇻🇳 Danh sách các gói dịch vụ (trong thực tế sẽ lấy từ API)
 const plans = [
   {
     name: "Miễn phí",

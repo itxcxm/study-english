@@ -1,5 +1,11 @@
 'use client';
 
+/**
+ * 🇻🇳 Trang Profile - Quản lý thông tin cá nhân
+ * 🇻🇳 Cho phép người dùng xem và cập nhật:
+ * - Thông tin cá nhân (tên, email, avatar)
+ * - Mật khẩu
+ */
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,7 +31,7 @@ export default function ProfilePage() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  // Fetch current user data
+  // 🇻🇳 Lấy dữ liệu người dùng hiện tại khi component mount
   useEffect(() => {
     const fetchUserData = async () => {
       try {

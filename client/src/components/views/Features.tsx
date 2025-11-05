@@ -1,7 +1,12 @@
+/**
+ * 🇻🇳 Component hiển thị các tính năng chính của nền tảng
+ * 🇻🇳 Giới thiệu các tính năng nổi bật như AI chấm bài, luyện nghe, lộ trình cá nhân hóa, v.v.
+ */
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Brain, Headphones, Target, BarChart3, MessageSquare, Award } from "lucide-react";
 
+// 🇻🇳 Danh sách các tính năng chính của nền tảng
 const features = [
   {
     icon: Brain,

@@ -1,3 +1,7 @@
+/**
+ * 🇻🇳 Component QuestionForm - Form thêm/sửa câu hỏi
+ * 🇻🇳 Form để admin thêm mới hoặc chỉnh sửa câu hỏi trong hệ thống
+ */
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,17 +18,17 @@ import { Question, QuestionFormData } from '@/types/question';
 import { translateTopic } from '@/utils/topicTranslations';
 import { X } from 'lucide-react';
 
-// Định nghĩa props cho form câu hỏi
+// 🇻🇳 Định nghĩa props cho form câu hỏi
 interface QuestionFormProps {
-  question?: Question; // Câu hỏi đang chỉnh sửa (nếu có)
-  onSubmit: (data: QuestionFormData) => void; // Hàm callback khi submit form
-  onCancel: () => void; // Hàm callback khi hủy
-  availableTopics?: string[]; // Danh sách chủ đề có sẵn
+  question?: Question; // 🇻🇳 Câu hỏi đang chỉnh sửa (nếu có)
+  onSubmit: (data: QuestionFormData) => void; // 🇻🇳 Hàm callback khi submit form
+  onCancel: () => void; // 🇻🇳 Hàm callback khi hủy
+  availableTopics?: string[]; // 🇻🇳 Danh sách chủ đề có sẵn
 }
 
-// Component form để thêm/sửa câu hỏi
+// 🇻🇳 Component form để thêm/sửa câu hỏi
 export const QuestionForm = ({ question, onSubmit, onCancel, availableTopics = [] }: QuestionFormProps) => {
-  // State lưu trữ dữ liệu form
+  // 🇻🇳 State lưu trữ dữ liệu form
   const [formData, setFormData] = useState<QuestionFormData>({
     question: question?.question || '',
     options: question?.options || ['', '', '', ''],
@@ -35,13 +39,13 @@ export const QuestionForm = ({ question, onSubmit, onCancel, availableTopics = [
     difficulty: question?.difficulty || 'medium',
   });
 
-  // Hàm xác định danh mục từ chủ đề
+  // 🇻🇳 Hàm xác định danh mục từ chủ đề
   const getCategoryFromTopic = (topic: string): 'grammar' | 'vocabulary' | 'verb-tenses' => {
-    // Các chủ đề thì động từ
+    // 🇻🇳 Các chủ đề thì động từ
     const verbTenseTopics = ['PresentSimple', 'PresentContinuous', 'PresentPerfect', 'PresentPerfectContinuous', 
       'PastSimple', 'PastContinuous', 'PastPerfect', 'PastPerfectContinuous',
       'FutureSimple', 'FutureContinuous', 'FuturePerfect', 'FuturePerfectContinuous', 'OtherVerbTenses'];
-    // Các chủ đề ngữ pháp
+    // 🇻🇳 Các chủ đề ngữ pháp
     const grammarTopics = ['Articles', 'Nouns', 'Pronouns', 'Adjectives', 'Adverbs', 'Verbs', 'Prepositions',
       'Conjunctions', 'Conditionals', 'PassiveVoice', 'ReportedSpeech', 'RelativeClauses', 'NounClauses',
       'AdverbialClauses', 'CleftSentences', 'Comparisons', 'Emphasis', 'Existential', 'Inversion',
@@ -56,7 +60,7 @@ export const QuestionForm = ({ question, onSubmit, onCancel, availableTopics = [
     }
   };
 
-  // Lọc chủ đề theo danh mục đã chọn
+  // 🇻🇳 Lọc chủ đề theo danh mục đã chọn
   const getFilteredTopics = () => {
     if (!formData.category) {
       return availableTopics;
@@ -64,11 +68,11 @@ export const QuestionForm = ({ question, onSubmit, onCancel, availableTopics = [
     return availableTopics.filter(topic => getCategoryFromTopic(topic) === formData.category);
   };
 
-  // Khi thay đổi category, cập nhật chủ đề nếu cần
+  // 🇻🇳 Khi thay đổi category, cập nhật chủ đề nếu cần
   const handleCategoryChange = (value: string) => {
     const newCategory = value as 'grammar' | 'vocabulary' | 'verb-tenses';
     const filteredTopics = availableTopics.filter(topic => getCategoryFromTopic(topic) === newCategory);
-    // Nếu chủ đề hiện tại không thuộc danh mục mới, reset chủ đề
+    // 🇻🇳 Nếu chủ đề hiện tại không thuộc danh mục mới, reset chủ đề
     if (formData.topic && getCategoryFromTopic(formData.topic) !== newCategory) {
       setFormData({ ...formData, category: newCategory, topic: filteredTopics[0] || '' });
     } else {
@@ -76,13 +80,13 @@ export const QuestionForm = ({ question, onSubmit, onCancel, availableTopics = [
     }
   };
 
-  // Xử lý submit form
+  // 🇻🇳 Xử lý submit form
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit(formData);
   };
 
-  // Xử lý thay đổi đáp án
+  // 🇻🇳 Xử lý thay đổi đáp án
   const handleOptionChange = (index: number, value: string) => {
     const newOptions = [...formData.options];
     newOptions[index] = value;
