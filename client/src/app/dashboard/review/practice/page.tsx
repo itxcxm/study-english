@@ -13,9 +13,19 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 // Import icons từ Lucide React
 import { ArrowLeft, CheckCircle2, XCircle, SkipForward, Home, BookOpen } from "lucide-react";
 
-// Import data và utilities
-import { getQuestions, Question } from "@/lib/practice-data";
+// Import utilities
 import { cn } from "@/lib/utils";
+import { translateTopic, normalizeTopicKey } from "@/utils/topicTranslations";
+import api from "@/lib/api";
+
+// Kiểu dữ liệu câu hỏi lấy từ server
+type Question = {
+  id?: string;
+  question: string;
+  answers: string[];
+  correctAnswer: number;
+  explanation: string;
+};
 
 /**
  * Component trang luyện tập câu hỏi
@@ -25,7 +35,7 @@ function PracticeContent() {
   // Lấy tham số từ URL
   const searchParams = useSearchParams();
   const router = useRouter();
-  const type = searchParams.get("type") || "";      // Loại câu hỏi: vocabulary hoặc grammar
+  const type = searchParams.get("type") || "";      // Loại câu hỏi: vocabulary | grammar | verbenses (UI)
   const topic = searchParams.get("topic") || "";   // Chủ đề cụ thể
 
   // State quản lý dữ liệu và trạng thái
@@ -38,8 +48,40 @@ function PracticeContent() {
 
   // Load câu hỏi khi component mount hoặc tham số thay đổi
   useEffect(() => {
-    const loadedQuestions = getQuestions(type, topic);
-    setQuestions(loadedQuestions);
+    let isCancelled = false;
+
+    async function fetchQuestions() {
+      // Normalize topic from URL format (kebab-case) to server format (PascalCase)
+      const serverTopic = normalizeTopicKey(topic);
+      
+      try {
+        // Use the configured axios instance which handles authentication and token refresh
+        const response = await api.get("/review", {
+          params: { topic: serverTopic },
+        });
+        
+        // Server returns { success: true, topic: "...", count: 20, data: [...] }
+        const data: Question[] = Array.isArray(response.data?.data) ? response.data.data : [];
+        if (!isCancelled) setQuestions(data);
+      } catch (err: any) {
+        if (!isCancelled) {
+          setQuestions([]);
+          // Log detailed error for debugging
+          // eslint-disable-next-line no-console
+          console.error("Failed to fetch practice questions:", {
+            error: err?.response?.data?.message || err?.message || String(err),
+            status: err?.response?.status,
+            topic,
+            serverTopic,
+          });
+        }
+      }
+    }
+
+    fetchQuestions();
+    return () => {
+      isCancelled = true;
+    };
   }, [type, topic]);
 
   // Hiển thị loading nếu chưa có câu hỏi
@@ -82,7 +124,8 @@ function PracticeContent() {
       setShowFeedback(false);
       setIsCorrect(false);
     } else {
-      router.push(`/dashboard/review/result?score=${score + (isCorrect ? 1 : 0)}&total=${questions.length}&type=${type}&topic=${topic}`);
+      // Score is already incremented in handleSubmit, so just use the current score
+      router.push(`/dashboard/review/result?score=${score}&total=${questions.length}&type=${type}&topic=${topic}`);
     }
   };
 
@@ -99,25 +142,7 @@ function PracticeContent() {
     router.push("/dashboard/review");
   };
 
-  const getTopicName = () => {
-    const topicNames: Record<string, string> = {
-      "daily-life": "Cuộc sống hàng ngày",
-      "work": "Công việc",
-      "travel": "Du lịch",
-      "education": "Giáo dục",
-      "technology": "Công nghệ",
-      "health": "Sức khỏe",
-      "tenses": "Thì trong tiếng Anh",
-      "conditionals": "Câu điều kiện",
-      "passive-voice": "Câu bị động",
-      "reported-speech": "Câu tường thuật",
-      "modal-verbs": "Động từ khuyết thiếu",
-      "relative-clauses": "Mệnh đề quan hệ",
-      "articles": "Mạo từ",
-      "prepositions": "Giới từ",
-    };
-    return topicNames[topic] || topic;
-  };
+  const getTopicName = () => translateTopic(topic);
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -159,7 +184,7 @@ function PracticeContent() {
         <CardHeader>
           <div className="space-y-2">
             <CardDescription>
-              {type === "vocabulary" ? "Từ vựng" : "Ngữ pháp"} • {getTopicName()}
+              {(type === "vocabulary" ? "Từ vựng" : type === "grammar" ? "Ngữ pháp" : "Thì động từ")} • {getTopicName()}
             </CardDescription>
             <CardTitle className="text-sm font-medium text-slate-600">
               Câu {currentIndex + 1} / {questions.length}
