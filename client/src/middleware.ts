@@ -17,7 +17,7 @@ if (isProduction && !JWT_SECRET) {
 // 🇻🇳 Mã hóa secret dùng cho jwtVerify
 const SECRET = JWT_SECRET ? new TextEncoder().encode(JWT_SECRET) : null;
 
-// 🇻🇳 Các route cần đăng nhập mới truy cập được
+// 🇻🇳 Các route cần đăng nhập mới truy cập được 
 const protectedRoutes = ["/dashboard", "/profile", "/admin"];
 
 export async function middleware(req: NextRequest) {

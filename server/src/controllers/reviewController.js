@@ -1,9 +1,9 @@
+import { Router } from "express";
+import { ReviewService } from "../services/reviewServices.js";
+import { HTTP_STATUS } from "../utils/constants.js";
+import { authMiddleware, adminMiddleware } from "../middlewares/auth.js";
+
 /**
- * 🇻🇳 Controller Review - Quản lý các endpoint liên quan đến ôn tập (review questions)
- * 🇻🇳 Xử lý các request liên quan đến câu hỏi ôn tập, bao gồm:
- * 🇻🇳 - Lấy câu hỏi theo topic
- * 🇻🇳 - Lấy danh sách topics
- * 🇻🇳 - Thêm/sửa/xóa câu hỏi (yêu cầu quyền admin)
  *
  * 🇻🇳 Các API Endpoint:
  *

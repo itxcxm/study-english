@@ -6,15 +6,16 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { BookOpen, Menu, X } from "lucide-react";
+import { BookOpen, Menu, X, Shield } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import api from "@/lib/api";
-import { checkAuth } from "@/lib/auth";
+import { checkAuth, checkAdminRole } from "@/lib/auth";
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true); // 🇻🇳 Loading state để tránh flash button
 
   useEffect(() => {
@@ -24,9 +25,14 @@ export function Header() {
       setIsCheckingAuth(true);
       try {
         await checkAuth(setIsAuthenticated);
+        // 🇻🇳 Kiểm tra quyền admin sau khi checkAuth hoàn thành
+        // 🇻🇳 checkAdminRole sẽ tự động kiểm tra authentication và trả về role
+        const { isAdmin: adminStatus } = await checkAdminRole();
+        setIsAdmin(adminStatus);
       } catch (error) {
         // 🇻🇳 Đảm bảo set authenticated = false nếu có lỗi
         setIsAuthenticated(false);
+        setIsAdmin(false);
       } finally {
         setIsCheckingAuth(false);
       }
@@ -69,9 +75,19 @@ export function Header() {
               // 🇻🇳 Hiển thị loading state trong khi check auth
               <div className="w-20 h-10"></div>
             ) : isAuthenticated ? (
-              <Link href="/dashboard">
-                <Button className="bg-blue-600 hover:bg-blue-700">My Dashboard</Button>
-              </Link>
+              <>
+                {isAdmin && (
+                  <Link href="/admin">
+                    <Button variant="outline" className="border-purple-600 text-purple-600 hover:bg-purple-50">
+                      <Shield className="w-4 h-4 mr-2" />
+                      Admin
+                    </Button>
+                  </Link>
+                )}
+                <Link href="/dashboard">
+                  <Button className="bg-blue-600 hover:bg-blue-700">My Dashboard</Button>
+                </Link>
+              </>
             ) : (
               <>
                 <Link href="/login">
@@ -138,9 +154,19 @@ export function Header() {
                 // 🇻🇳 Hiển thị loading state trong khi check auth
                 <div className="w-full h-10"></div>
               ) : isAuthenticated ? (
-                <Link href="/dashboard">
-                  <Button className="w-full bg-blue-600 hover:bg-blue-700">My Dashboard</Button>
-                </Link>
+                <>
+                  {isAdmin && (
+                    <Link href="/admin" onClick={() => setMobileMenuOpen(false)}>
+                      <Button variant="outline" className="w-full border-purple-600 text-purple-600 hover:bg-purple-50">
+                        <Shield className="w-4 h-4 mr-2" />
+                        Admin
+                      </Button>
+                    </Link>
+                  )}
+                  <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)}>
+                    <Button className="w-full bg-blue-600 hover:bg-blue-700">My Dashboard</Button>
+                  </Link>
+                </>
               ) : (
                 <>
                   <Link href="/login">
