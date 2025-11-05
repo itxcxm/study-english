@@ -3,7 +3,7 @@
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Question } from '@/type/question';
+import { Question } from '@/types/question';
 import { translateTopic } from '@/utils/topicTranslations';
 import { Edit2, Trash2, BookOpen, Calendar } from 'lucide-react';
 

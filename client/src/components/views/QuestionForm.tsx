@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Question, QuestionFormData } from '@/type/question';
+import { Question, QuestionFormData } from '@/types/question';
 import { translateTopic } from '@/utils/topicTranslations';
 import { X } from 'lucide-react';
 

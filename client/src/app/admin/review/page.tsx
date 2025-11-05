@@ -22,7 +22,7 @@ import {
 import { QuestionCard } from '@/components/views/QuestionCard';
 import { QuestionForm } from '@/components/views/QuestionForm';
 import { AdminNav } from '@/components/views/AdminNav';
-import { Question, QuestionFormData } from '@/type/question';
+import { Question, QuestionFormData } from '@/types/question';
 import { toast } from 'sonner';
 import { Plus, Search, Filter, BookOpen, Loader2 } from 'lucide-react';
 import api from '@/lib/api';
