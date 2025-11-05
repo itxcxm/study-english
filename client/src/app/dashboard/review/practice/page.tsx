@@ -56,6 +56,7 @@ function PracticeContent() {
       
       try {
         // Use the configured axios instance which handles authentication and token refresh
+        // The base URL is automatically configured via environment variables
         const response = await api.get("/review", {
           params: { topic: serverTopic },
         });

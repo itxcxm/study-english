@@ -58,7 +58,7 @@ export default function ResultContent() {
         </Button>
         <span>/</span>
         <span className="text-slate-900 font-medium">
-          Kết quả - {type === "vocabulary" ? "Từ vựng" : "Ngữ pháp"} - {translateTopic(topic)}
+          Kết quả - {type === "vocabulary" ? "Từ vựng" : type === "grammar" ? "Ngữ pháp" : "Thì động từ"} - {translateTopic(topic)}
         </span>
       </nav>
 

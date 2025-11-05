@@ -1,5 +1,5 @@
 import axios, { AxiosError } from "axios";
-
+import { getApiBaseUrl } from "./api-config";
 /**
  * 🇻🇳 Axios instance với cấu hình cho cookie-based authentication
  * 
@@ -68,7 +68,7 @@ api.interceptors.response.use(
         // 🇻🇳 Gọi endpoint /auth/check để refresh token
         // 🇻🇳 Sử dụng axios instance riêng với withCredentials để đảm bảo cookies được gửi
         const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/auth/check`,
+          `${getApiBaseUrl()}/auth/check`,
           {
             withCredentials: true, // 🇻🇳 Quan trọng: Gửi cookies với request để server refresh token
           }
@@ -91,7 +91,7 @@ api.interceptors.response.use(
           // 🇻🇳 Gọi logout endpoint để xóa cookies trên server
           try {
             await axios.post(
-              `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/auth/logout`,
+              `${getApiBaseUrl()}/auth/logout`,
               {},
               { 
                 withCredentials: true, // 🇻🇳 Quan trọng: Gửi cookies để server có thể xóa
