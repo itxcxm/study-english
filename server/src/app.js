@@ -11,6 +11,7 @@ import { connectDB } from "./config/database.js";
 import { UserController } from "./controllers/userController.js";
 import { AuthController } from "./controllers/authController.js";
 import { ReviewController } from "./controllers/reviewController.js";
+import { CoursesController } from "./controllers/coursesController.js";
 
 // 🇻🇳 Tải các biến môi trường từ file .env
 dotenv.config();
@@ -66,6 +67,9 @@ app.use("/api/auth", authController.router);
 const reviewController = new ReviewController();
 app.use("/api/review", reviewController.router);
 
+// 🇻🇳 Route cho khóa học
+const coursesController = new CoursesController();
+app.use("/api/courses", coursesController.router);
 // 🇻🇳 Kết nối tới database MongoDB
 connectDB();
 
