@@ -12,7 +12,7 @@ export const connectDB = async () => {
   try {
     // 🇻🇳 Lấy URI từ biến môi trường hoặc sử dụng localhost mặc định
     const mongoURI =
-      process.env.MONGODB_URI || "mongodb://localhost:27017/study-english";
+      process.env.MONGODB_URI;
     // 🇻🇳 Kết nối tới MongoDB
     await mongoose.connect(mongoURI);
     console.log("MongoDB connected successfully");
